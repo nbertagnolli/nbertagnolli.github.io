@@ -6,13 +6,8 @@ group : navigation
 ---
 
 
-I am interested in research questions...
+I am currently pursuing a PhD in computing with a focus on machine learning and data mining.  I am interested in developing, implementing, and understanding algorithms that are capable of acquiring new knowledge and automatically adapting their behaviour over time. My PhD Advisor is <a target = "_blank" href = "http://www.svivek.com">Dr. Vivek Srikumar</a>
 
-* Item 1
-
-* item 2
-
-* item 3
 
 <h1> Publications </h1> 
 
