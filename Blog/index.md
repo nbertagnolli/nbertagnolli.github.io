@@ -1,7 +1,7 @@
 ---
-layout: page
+layour: page
 title : Blog
-header: 
+header:
 group : navigation
 ---
 
