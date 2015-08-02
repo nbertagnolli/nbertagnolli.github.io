@@ -36,9 +36,8 @@ The most basic way to address this is to down weight words that appear in many d
 
 #Future Thoughts
 So we can answer basic document queries by:
-<ol>
-  <li>Constructing a word document matrix</li>
-</ol>
+
+1. Constructing a word document matrix<
 2. Normalizing these vectors
 3. Representing a query as a normalized vector in this space
 4. Taking the dot product of the query and all document vectors
