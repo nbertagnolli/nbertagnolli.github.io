@@ -4,7 +4,21 @@ title: "Perceptron Visualization"
 data: 2015-08-27
 categories: jekyll update
 ---
+# **Explanation**
+  The perceptron algorithm, first introduced by Frank Rosenblatt, is a linear classifier 
+  which can be learned in an online fashion.  I've created a visualization to demonstrate how
+  the algorithm updates as new examples are seen.  In the below demonstration points are randomly
+   generated and assigned a label according to the true function (black line).  Points are
+   positive if they are to the right of the line and negative otherwise. 
+   
+   The  perceptron makes three complete passes over the data before reseting the visualization.  
+   The perceptron is learning online each time a new point appears the algorithm re-classifies
+   all previously seen points. Every time it makes an error it performs an additive update
+   which can be seen when the red line moves.
 
+<!---
++Processing to generate figure
+-->
 <script type="text/javascript" src="/js/processing.js"></script>
 <script type="text/processing" data-processing-target="mycanvas">
         float[] inputs = {12,4};
@@ -20,6 +34,7 @@ categories: jekyll update
         float b = 1;
         float pm;
         float pb;
+        float margin = .25; //The margin around the decision boundary to be considered
         
         
         void setup(){
@@ -32,7 +47,6 @@ categories: jekyll update
             for(int i = 0; i < training.length; i++){
                 float x = random(-width/2,width/2);
                 float y = random(-height/2,height/2);
-                
                 int answer = 1;
                 if(y < f(x,m,b)){answer = -1;}
                 
@@ -73,17 +87,21 @@ categories: jekyll update
         line(width/2,f(width/2,pm,pb),-width/2,f(-width/2,pm,pb));
         strokeWeight(1);
         
+        //visualize direction of positive classification
+        //use weights for this
+        //line(width/2,f(width/2,pm,pb),-width/2,f(-width/2,pm,pb));
+        //strokeWeight(1);
+        
         //We visualize the prediction of the perceptron through the most recent training point
         for(int i = 0; i < count; i++){
             stroke(0);
             int guess = ptron.feedforward(training[i].inputs);
+            textSize(32);
+            fill(0,0,0);
+            if(guess > 0) text("-", training[i].inputs[0], training[i].inputs[1]);
+            else          text("+", training[i].inputs[0], training[i].inputs[1]);
             
-            if(guess > 0) noFill();
-            else          fill(0);
-            
-            ellipse(training[i].inputs[0], training[i].inputs[1], 8, 8);
         }
-        println(count);
         
     }
     
@@ -145,5 +163,66 @@ categories: jekyll update
     float f(float x,float m, float b){
         return m*x + b; 
     }
+    
 </script>
+
+<!---
++Buttons for interacting with the sketch
+-->
+
+<button onclick="startSketch();">
+  Start/Stop
+</button>
+
+<!---
+<button onclick="stepSketch();">
+  Step
+</button>
+
+
++Javascript used to control the processing sketch
+-->
+
+<script type="application/javascript">
+        var processingInstance;
+        var start = true;
+ 
+         function startSketch() {
+           if (start){
+              switchSketchState(false);
+              start = false
+           }else{
+              switchSketchState(true);
+              start = true;
+           }
+         }
+ 
+         function stopSketch() {
+           switchSketchState(false);
+         }
+         
+         function stepSketch(){
+           startSketch();
+           stopSketch();
+         }
+ 
+         function switchSketchState(on) {
+             if (!processingInstance) {
+                 processingInstance = Processing.getInstanceById('mycanvas');
+             }
+ 
+             if (on) {
+                 processingInstance.loop();  // call Processing loop() function
+             } else {
+                 processingInstance.noLoop(); // stop animation, call noLoop()
+             }
+         }
+         
+     </script>
 <canvas id="mycanvas"></canvas>
+
+# **Key**
+* Black Line -  True decision boundary from which data was labeled
+* Red Line - Decision boundary learned by perceptron
+* "+" -  Points classified as positive by the perceptron
+* "-" - points classified as negative by the perceptron
