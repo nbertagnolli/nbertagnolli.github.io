@@ -44,6 +44,8 @@ and $$||A^TA-B^TB||_2$$ in Figure 1.  Indeed we see that $$||A^TA-B^TB||_2 \leq 
 	<img src="../assets/FD_Figure_01.jpg">
 </figure>
 
+![My helpful screenshot]({{ site.url }}/assets/FD_Figure_01.jpg)
+
 Next I wanted to see that FD is faster than SVD so I fixed $$\ell = 75$$, $$n = 100$$, and varied 
 $$m$$ from $$10000$$ to $$100000$$.  The results are displayed in Figure 2.
 <figure class="half">
