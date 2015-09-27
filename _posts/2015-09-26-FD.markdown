@@ -41,7 +41,7 @@ $$M\in \mathbb{R}^{10000\times 100}$$ for $$\ell = \{50, 55, ..., 100\}$$ and gr
 and $$||A^TA-B^TB||_2$$ in Figure 1.  Indeed we see that $$||A^TA-B^TB||_2 \leq 2||A||_f^2/\ell$$
 
 <figure class="half">
-	<img src="../assets/FD_Figure_01.jpg">
+	<img src="/assets/FD_Figure_01.jpg">
 </figure>
 
 ![My helpful screenshot]({{ site.url }}/assets/FD_Figure_01.jpg)
