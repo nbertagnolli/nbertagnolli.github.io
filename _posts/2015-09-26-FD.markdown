@@ -29,14 +29,9 @@ sketch of a matrix $$B$$ with $$\ell << m$$ where:\begin{align}
 B^TB \prec A^TA \text{ and } ||A^TA-B^TB||_2 \leq 2||A||_f^2/\ell
 \end{align}
 For a derivation of this bound see the original paper <a target = "_blank" href = "http://www.cs.yale.edu/homes/el327/papers/simpleMatrixSketching.pdf">PDF</a>.
-Later this bound was improved upon and extended to: 
-
-by Mina Ghashami in <a target = "_blank" href = "http://arxiv.org/pdf/1501.01711v2.pdf">PDF</a>.
-Both of these bounds can be obtained in $$\mathcal{O}(\ell m)$$ time and space.  Which is 
-considerably better than SVD.
 
 ## **Experiments**
-I wanted to see for myself that the above bounds hold in practice. To do this I performed FD on a matrix 
+I wanted to see for myself that the above bound holds in practice. To do this I performed FD on a matrix 
 $$M\in \mathbb{R}^{10000\times 100}$$ for $$\ell = \{50, 55, ..., 100\}$$ and graphed the upper bound
 and $$||A^TA-B^TB||_2$$ in Figure 1.  Indeed we see that $$||A^TA-B^TB||_2 \leq 2||A||_f^2/\ell$$
 
@@ -44,12 +39,10 @@ and $$||A^TA-B^TB||_2$$ in Figure 1.  Indeed we see that $$||A^TA-B^TB||_2 \leq 
 	<img src="/assets/FD_Figure_01.jpg">
 </figure>
 
-![My helpful screenshot]({{ site.url }}/assets/FD_Figure_01.jpg)
-
 Next I wanted to see that FD is faster than SVD so I fixed $$\ell = 75$$, $$n = 100$$, and varied 
 $$m$$ from $$10000$$ to $$100000$$.  The results are displayed in Figure 2.
 <figure class="half">
-	<img src="../assets/FD_Figure_02.jpg">
+	<img src="/assets/FD_Figure_02.jpg">
 </figure>
 
 
