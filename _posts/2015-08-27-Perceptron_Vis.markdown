@@ -4,9 +4,42 @@ title: "Perceptron Visualization"
 data: 2015-08-27
 categories: jekyll update
 ---
+<head>
+  <script type="text/javascript"
+          src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+</head>
+
 # **Explanation**
-  The perceptron algorithm, first introduced by Frank Rosenblatt, is a linear classifier 
-  which can be learned in an online fashion.  I've created a visualization to demonstrate how
+  The perceptron algorithm, first introduced by Frank Rosenblatt, is a linear classifier.  
+  This means that for a given input $$x \in \mathbb{R}^n$$ the perceptron assigns an output
+  label $$y \in \{-1,1\}$$ based on a linear function of the form:\begin{align}
+    f(x) &= \text{sgn}(w_0 + w_1x_1 + w_2x_2 +...+ w_nx_n)
+  \end{align}
+  or written more concisely as:\begin{align}
+    f(x) &= \text{sgn}(w^Tx + w_0)
+  \end{align}
+  This function represents a hyperplane which divides the space into two halves.  This still 
+  leaves the question, "How do we learn this hyperplane?"  Well we want to do something like
+  (from now on $$w_t$$ will represent $$w$$ at time $$t$$ not at position $$t$$ in the vector):
+  
+  1. Initialize $$w_0 = \vec{0} \in \mathbb{R}^n$$
+  2. For each training example $$(x_i,y_i)$$:
+  * Predict $$y' = \text{sgn}(w_t^Tx_i)$$
+  * if $$y_i \neq y'$$:
+    * Update $$w_{t+1} = w_t + $$something
+  
+  This is all fine and dandy but how do we update the weights? Well we want to adjust them
+  based on how bad the error of the classification was on a given input i.e. $$yx$$.  We can
+  read this as if we made an error on input $$x$$ we need to adjust our direction in the direction
+  of $$y$$.We also want the learning to happen smoothly.  In other words we don't want the perceptron moving
+  wildly everytime it makes an error we want it to take small steps.  Thus we multiply $$yx$$
+  by some constant $$\eta$$ usually less than one.  (In the below example $$\eta = .01$$)
+  Putting this all together we see that the update rule is: \begin{align}
+  w_{t+1} &= w_t + \eta yx
+  \end{align}
+  
+   I've created a visualization to demonstrate how
   the algorithm updates as new examples are seen.  In the below demonstration points are randomly
    generated and assigned a label according to the true function (black line).  Points are
    positive if they are to the right of the line and negative otherwise. 
@@ -221,7 +254,7 @@ categories: jekyll update
      </script>
 <canvas id="mycanvas"></canvas>
 
-# **Key**
+# **Figure Key**
 * Black Line -  True decision boundary from which data was labeled
 * Red Line - Decision boundary learned by perceptron
 * "+" -  Points classified as positive by the perceptron
