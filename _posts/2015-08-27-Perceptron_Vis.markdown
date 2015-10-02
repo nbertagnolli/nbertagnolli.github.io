@@ -54,6 +54,11 @@ categories: jekyll update
 -->
 <script type="text/javascript" src="/js/processing.js"></script>
 <script type="text/processing" data-processing-target="mycanvas">
+        /**
+        * This code was adapted from Daniel Shiffman's book The Nature of Code
+        * Here is the creative commons license as well http://creativecommons.org/licenses/by-nc/3.0/
+        * I've made some adjustments to the visualization and the way that it's displayed
+        */ 
         float[] inputs = {12,4};
         float[] weights = {.5,-1};
         Perceptron ptron;
@@ -250,6 +255,7 @@ categories: jekyll update
                  processingInstance.noLoop(); // stop animation, call noLoop()
              }
          }
+         
          
      </script>
 <canvas id="mycanvas"></canvas>
