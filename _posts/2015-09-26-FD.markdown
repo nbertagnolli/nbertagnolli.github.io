@@ -48,6 +48,17 @@ $$m$$ from $$10000$$ to $$100000$$.  The results are displayed in Figure 2.
 </figure>
 
 
-You can find my implementation of Frequent directions along with my experimental code at:
+You can find my Scala implementation of Frequent directions along with my experimental code at:
 <a target = "_blank" href = "https://github.com/nbertagnolli/FrequentDirections">FD Implementation</a>.
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68394304-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
 
