@@ -161,6 +161,8 @@ First we need to create a blobDetector and get all of the blobs in the image.
 {% endhighlight %}
 
 With this last piece we can now track the object!
+ 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vzbLb7nIoPo" frameborder="0" allowfullscreen></iframe>
 
 All of the code for this project can be found <a target = "_blank" href = "https://github.com/nbertagnolli/Kinect_Projects">here</a>
 
