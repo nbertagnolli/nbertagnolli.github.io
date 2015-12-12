@@ -120,7 +120,7 @@ def main():
 If you run the above code for a few different values of $$\lambda$$ you can begin to see how
 it affects the model.  In the figure below, observe how as $$\lambda$$ increases it begins to flatten out the curve.
 Lower values of $$\lambda$$ cause us to have spikey fits, that are very close to the original
-noisy data but are not very smooth.  Larger values of $$\lamdba$$ cause our fit to be too
+noisy data but are not very smooth.  Larger values of $$\lambda$$ cause our fit to be too
 flat penalizing changes in the $$y$$ axis more.  From the graph below it looks like $$\lambda =10$$
 is a pretty good fit.
 
