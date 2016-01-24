@@ -416,6 +416,18 @@ This curve deviates quite a bit from linear so I would be hesitant to conclude t
 
 What about the whole abalone?  Are the features collectively drawn from a multivariate normal distribution?  This may appear like a much trickier question but in actuality it is quite easy to determine.  All we need to do is examine the Mahalanobis distance between the points and then compare to the  $$\chi^2_q$$ distribution.  If we do that we get:
 
+{% highlight python %}
+means = abalone[names[1:]].mean(axis=0)
+S = abalone[names[1:]].cov()
+x = abalone[names[1:]].as_matrix() - means.as_matrix()
+d = np.dot(np.dot(x, np.linalg.inv(S)), x.transpose())
+
+# Compare to a chi square with 3 degrees of freedom.
+stats.probplot(np.diag(d), dist=stats.chi2, sparams=(8,), plot=plt)
+plt.show()
+
+{% endhighlight %}
+
   <figure class="half">
 	<img src="/assets/covariance_visual_normal/figure_03.png">
   </figure>
