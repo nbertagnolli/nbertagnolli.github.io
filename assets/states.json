@@ -6,7 +6,7 @@
      "account": 
      {
         "email": "nic@passive-logic.com",
-        "cloud": "",
+        "cloud": "true",
         "username": "nbertagnolli",
         "password": "poopwoman"
      }
