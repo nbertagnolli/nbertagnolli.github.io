@@ -1,1 +1,26 @@
-{"Lights_0":{"stop":"false","slow":"true","go":"true"},"Lights_1":{"stop":"false","slow":"true","go":"true"},"Lights_2":{"stop":"false","slow":"true","go":"true"},"Lights_3":{"stop":"false","slow":"true","go":"true"}}
+{APP_SPLASH: 
+ {
+ },
+APP_STARTUP: 
+ {
+     account: 
+     {
+        email: "nic@passive-logic.com",
+        cloud: "",
+        username: "nbertagnolli",
+        password: "poopwoman"
+     }
+ },
+APP_FILEVIEWER: 
+ {
+ },
+APP_PROGRESS: 
+ {
+ },
+APP_EQUIPMENT: 
+ {
+ },
+APP_RUNTIME: 
+ {
+ }
+}
