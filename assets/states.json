@@ -1,26 +1,26 @@
-{APP_SPLASH: 
+{"APP_SPLASH": 
  {
  },
-APP_STARTUP: 
+"APP_STARTUP": 
  {
-     account: 
+     "account": 
      {
-        email: "nic@passive-logic.com",
-        cloud: "",
-        username: "nbertagnolli",
-        password: "poopwoman"
+        "email": "nic@passive-logic.com",
+        "cloud": "",
+        "username": "nbertagnolli",
+        "password": "poopwoman"
      }
  },
-APP_FILEVIEWER: 
+"APP_FILEVIEWER": 
  {
  },
-APP_PROGRESS: 
+"APP_PROGRESS": 
  {
  },
-APP_EQUIPMENT: 
+"APP_EQUIPMENT": 
  {
  },
-APP_RUNTIME: 
+"APP_RUNTIME": 
  {
  }
 }
