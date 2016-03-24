@@ -22,5 +22,9 @@
  },
 "APP_RUNTIME": 
  {
+ },
+ "APP": 
+ {
+     "debug": "false"
  }
 }
