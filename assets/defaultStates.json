@@ -1,0 +1,30 @@
+{"APP_SPLASH": 
+ {
+ },
+"APP_STARTUP": 
+ {
+     "account": 
+     {
+        "email": "admin@example.com",
+        "cloud": "true",
+        "username": "admin",
+        "password": "test123"
+     }
+ },
+"APP_FILEVIEWER": 
+ {
+ },
+"APP_PROGRESS": 
+ {
+ },
+"APP_EQUIPMENT": 
+ {
+ },
+"APP_RUNTIME": 
+ {
+ },
+ "APP": 
+ {
+     "debug": "false"
+ }
+}
