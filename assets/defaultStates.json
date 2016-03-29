@@ -32,8 +32,14 @@
              "buildingSiteType": "false",
              "buildingSiteTypeChilds":
              {
-              "commercial": "true"
+              "commercial": "true",
+              "residential": "false",
+              "industrial": "false"
              }
+             "address": "unknown",
+             "north": "unknown",
+             "west": "unknown",
+             "altitude": 32.0
          }
      }
      
