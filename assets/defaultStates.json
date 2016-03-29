@@ -19,35 +19,41 @@
      "percent": 0,
      "setup": 
      {
-      "siteInfo":
-      {
-          "inputFields":
-              {
-                  "name": "New Project",
-                  "notes": "Project's Description",
-                  "controlTypes": 
-                  {
-                      "hvacSystem": "false",
-                      "lighting": "false",
-                      "irrigation": "false",
-                  },
-                  "buildingSiteType": "false",
-                  "buildingSiteTypeChilds":
-                  {
-                   "commercial": "true",
-                   "residential": "false",
-                   "industrial": "false"
-                  }
-                  "address": "unknown",
-                  "north": "unknown",
-                  "west": "unknown",
-                  "altitude": 32.0
-              }
-      },
-      "buildingInfo":
-      {
-       
-      }
+         "siteInfo":
+         {
+             "inputFields":
+                 {
+                     "name": "New Project",
+                     "notes": "Project's Description",
+                     "controlTypes": 
+                     {
+                         "hvacSystem": "false",
+                         "lighting": "false",
+                         "irrigation": "false",
+                     },
+                     "buildingSiteType": "false",
+                     "buildingSiteTypeChilds":
+                     {
+                      "commercial": "true",
+                      "residential": "false",
+                      "industrial": "false"
+                     }
+                     "address": "unknown",
+                     "north": "unknown",
+                     "west": "unknown",
+                     "altitude": 32.0
+                 }
+         },
+         "buildingInfo":
+         {
+             "inputFields":
+             {
+                 "fileName": "unknown",
+                 "fileInput": "unknown",
+                 "totalBuildingFloorArea": 100,
+                 "totalBuildingLevels": 3
+             }
+         }
      }
      
  },
