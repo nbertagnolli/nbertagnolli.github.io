@@ -16,7 +16,27 @@
  },
 "APP_PROGRESS": 
  {
-     "percent": 0
+     "percent": 0,
+     "setup": 
+     {
+         "inputFields":
+         {
+             "name": "New Project",
+             "notes": "Project's Description",
+             "controlTypes": 
+             {
+                 "hvacSystem": "false",
+                 "lighting": "false",
+                 "irrigation": "false",
+             },
+             "buildingSiteType": "false",
+             "buildingSiteTypeChilds":
+             {
+              "commercial": "true"
+             }
+         }
+     }
+     
  },
 "APP_EQUIPMENT": 
  {
