@@ -38,13 +38,13 @@ $$M\in \mathbb{R}^{10000\times 100}$$ for $$\ell = \{50, 55, ..., 100\}$$ and gr
 and $$||A^TA-B^TB||_2$$ in Figure 1.  Indeed we see that $$||A^TA-B^TB||_2 \leq 2||A||_f^2/\ell$$
 
 <figure class="half">
-	<img src="/assets/FD_Figure_01.jpg">
+	<img src="/assets/FD/FD_Figure_01.jpg">
 </figure>
 
 Next I wanted to see that FD is faster than SVD so I fixed $$\ell = 75$$, $$n = 100$$, and varied 
 $$m$$ from $$10000$$ to $$100000$$.  The results are displayed in Figure 2.
 <figure class="half">
-	<img src="/assets/FD_Figure_02.jpg">
+	<img src="/assets/FD/FD_Figure_02.jpg">
 </figure>
 
 
