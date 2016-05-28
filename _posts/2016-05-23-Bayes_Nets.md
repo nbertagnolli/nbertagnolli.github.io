@@ -377,7 +377,7 @@ infer(heart_net, ["c", "a", "b", "e"], ["b", "e"], [1, 1])
 </div>
 </center>
 
-This is an example of information flowing between two previously independent factors!
+This is an example of information flowing between two previously independent factors!  I have created an IPython notebook so that you can play with these ideas if you'd like located <a href="https://github.com/nbertagnolli/BlogPosts/blob/master/Python/BayesNets.ipynb">here</a>.
 
 
 
