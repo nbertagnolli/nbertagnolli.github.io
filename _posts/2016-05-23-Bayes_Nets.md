@@ -11,10 +11,10 @@ categories: jekyll update
 </head>
 
 ## **Introduction**
-The goal of graphical models is to represent some joint distribution over a set of random variables.   In general this is a difficult problem, because even if our random variables are binary, either 1 or 0, our model will require an exponential number of assignments to our values ($$2^n$$).  By using a graphical model we can try to represent independence assumptions and thus reduce the complexity of our model while still retaining its predictive power.  In this tutorial I'm going to talk about Bayesian networks, which are a type of directed graphical model where nodes represent random vairables and the paths represent our independence assumptions.  I'll go over the basic intuition and operations needed, and build a simple medical diagnosis model.  The point of this tutorial is not to discuss all of the ways to reason about influence in a Bayes net but to provide a practical guide to building an actual functioning model.  Let's get started.
+The goal of graphical models is to represent some joint distribution over a set of random variables.   In general this is a difficult problem, because even if our random variables are binary, either 1 or 0, our model will require an exponential number of assignments to our values ($$2^n$$).  By using a graphical model we can try to represent independence assumptions and thus reduce the complexity of our model while still retaining its predictive power.  In this tutorial I'm going to talk about Bayesian networks, which are a type of directed graphical model where nodes represent random variables and the paths represent our independence assumptions.  I'll go over the basic intuition and operations needed, and build a simple medical diagnosis model.  The point of this tutorial is not to discuss all of the ways to reason about influence in a Bayes net but to provide a practical guide to building an actual functioning model.  Let's get started.
 
 ## **Motivating example**
-Imagine that we are a doctor and we want to predict whether or not a patient will have a heart attack.  We have a few pieces of information that we can collect like the patients cholesterol, whether or not they smoke, their blood pressure, and whether or not they exercise.  Now in order to describe this system fully we would need $$2^5$$ interactions.  However, this many interactions might not lend itself to any additional predictive power.  We're doctors and we know some things about this disease.  For example, we know that blood pressure is directly related to heart attacks and that both exercise and smoking can affect blood pressure.  Thus we can build a model like the one in Figure 1 where we use our domain knowledge to describe the interactions between our features.
+Imagine that we are doctors and we want to predict whether or not a patient will have a heart attack.  We have a few pieces of information that we can collect like the patients cholesterol, whether or not they smoke, their blood pressure, and whether or not they exercise.  Now in order to describe this system fully we would need $$2^5$$ interactions.  However, this many interactions might not lend itself to any additional predictive power.  We're doctors and we know some things about this disease.  For example, we know that blood pressure is directly related to heart attacks and that both exercise and smoking can affect blood pressure.  Thus we can build a model like the one in Figure 1 where we use our domain knowledge to describe the interactions between our features.
 
 <figure class="half">
 	<img src="/assets/Bayes_Nets/figure_01.png">
@@ -29,7 +29,7 @@ We assume that this network represents the joint distribution $$P(E, S, C, B, A)
 P(E, S, C, B, A) &= P(E)P(S)P(C | S)P(B|E,S)P(A|B)
 \end{align}
 
-Now let's explore how we might use this network to make predictions about our patient.  Let's figure out the probability of a patient exercising regularly, not smoking, not having high cholestoral, not having high blood pressure, and not getting a heart attack.  This is easy we just look at our conditional probability tables (CPTs).
+Now let's explore how we might use this network to make predictions about our patient.  Let's figure out the probability of a patient exercising regularly, not smoking, not having high cholesterol, not having high blood pressure, and not getting a heart attack.  This is easy we just look at our conditional probability tables (CPTs).
 
 \begin{align}
 P(E=T, S=F, C=F, B=F, A=F) &= P(E=T)P(S=F)P(C=F | S=F)P(B=F|E=T,S=F)P(A=F|B=F)\newline
@@ -37,9 +37,9 @@ P(E=T, S=F, C=F, B=F, A=F) &= P(E=T)P(S=F)P(C=F | S=F)P(B=F|E=T,S=F)P(A=F|B=F)\n
 &= .184
 \end{align}
 
-This is useful but the real power of the Bayesian network comes from being able to reason about the whole model, and the effects that different variable observations have on eachother.  In order to perform this inference we'll need three operations, variable observation, marginalization, and factor products.
+This is useful but the real power of the Bayesian network comes from being able to reason about the whole model, and the effects that different variable observations have on each other.  In order to perform this inference we'll need three operations, variable observation, marginalization, and factor products.
 
-Observing a variable is a simple operation where we just ignore all unobserved aspects of that variable.  This translates into deleteing all rows of a cpt where that observation is not true.
+Observing a variable is a simple operation where we just ignore all unobserved aspects of that variable.  This translates into deleting all rows of a CPT where that observation is not true.
 
 <figure class="half">
 	<img src="/assets/Bayes_Nets/figure_02.png">
@@ -153,7 +153,7 @@ def factor_product(cpt1, cpt2):
     return cpt
 {% endhighlight %}
 
-In this tutorial we are going to perform exact inference because our networks are fairly small.  We will use the method of Variable elimination to make predictions in our network.  The outline of the proceedure is as follows
+In this tutorial we are going to perform exact inference because our networks are fairly small.  We will use the method of Variable elimination to make predictions in our network.  The outline of the procedure is as follows
 
 1. Observe variables
 
@@ -264,7 +264,7 @@ infer(heart_net, ["c", "b", "e", "s"], ["s"], [1])
 </div>
 </center>
 
-As we would expect it increases. This is what is known as causal reasoning, because influence flows from the contibuting cause (smoking) to one of the effects (heart attack).  There are other ways for information to flow though.  For example, let's say that we know that the patient had a heart attack. Unfortunately, since they are now dead we can't measure their blood pressure directly, but we can use our model to predict what the probability of them having high blood pressure is.
+As we would expect it increases. This is what is known as causal reasoning, because influence flows from the contributing cause (smoking) to one of the effects (heart attack).  There are other ways for information to flow though.  For example, let's say that we know that the patient had a heart attack. Unfortunately, since they are now dead we can't measure their blood pressure directly, but we can use our model to predict what the probability of them having high blood pressure is.
 
 {% highlight python %}
 infer(heart_net, ["c", "a", "e", "s"], ["a"], [1])
