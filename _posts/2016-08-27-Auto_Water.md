@@ -53,7 +53,7 @@ The wiring is pretty simple and can be seen in the figure below.
 
 I created a short Arduino program to controll the pump.  All it does is read in the voltage across the soil sensor and when it drops too low provides 10 seconds of watering and then waits 20 seconds before repeating.  It continues to water until the soil gets damp enough that the voltage rises above the threshold found in the above step.
 
-{ % highlight C++ % }
+{% highlight C++ %}
 #define NUM_SAMPLES_TO_AVERAGE 10  // number of analog samples to average
 #define SOIL_VOLTAGE .15
 
@@ -100,7 +100,7 @@ void loop() {
   
 }
 
-{ % endhighlight %}
+{% endhighlight %}
 
 All code and diagrams for this project can be found <a href='https://github.com/nbertagnolli/BlogPosts/tree/master/Auto_Water/Wiring'>here</a>
 
