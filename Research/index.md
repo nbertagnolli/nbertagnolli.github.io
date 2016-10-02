@@ -6,7 +6,9 @@ group : navigation
 ---
 
 
-I am currently pursuing a PhD in computing with a focus on machine learning and data mining.  I am interested in developing, implementing, and understanding algorithms that are capable of acquiring new knowledge and automatically adapting their behaviour over time. My PhD Advisor is <a target = "_blank" href = "http://www.svivek.com">Dr. Vivek Srikumar</a>
+I am currently a Data Scientists at 3M HIS.  I work on building new products based on large amounts of healthcare data.  In a past life I was pursuing a PhD in computer science with a focus on machine learning and data mining.  I am interested in developing, implementing, and understanding algorithms that are capable of acquiring new knowledge and automatically adapting their behaviour over time. 
+
+<!-- My PhD Advisor is <a target = "_blank" href = "http://www.svivek.com">Dr. Vivek Srikumar</a> -->
 
 
 <h1> Publications </h1> 
