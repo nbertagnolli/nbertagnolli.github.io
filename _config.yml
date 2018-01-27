@@ -1,13 +1,12 @@
 # Site settings
 title: Nicolas Bertagnolli
-email: bertagno [at] cs [dot] utah [dot] edu
+email: nbertagnolli [at] msn [dot] com
 description: > # this means to ignore newlines until "baseurl:"
   This site is here to help me organize and display my projects to the public.  I love finding little code snippets and interesting facts on other people's websites so why not make some of my stuff available too!
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://www.nbertagnolli.com" # the base hostname & protocol for your site
-#twitter_username: 
+#twitter_username:
 github_username:  nbertagnolli
 
 # Build settings
 markdown: kramdown
-
