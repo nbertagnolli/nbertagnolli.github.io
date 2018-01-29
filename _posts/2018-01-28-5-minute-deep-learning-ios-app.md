@@ -16,7 +16,7 @@ Let's put them together :).  A while back there weren't many tutorials on how
 to do this, now there are quite a few more.  I'd like to add to the space with
 a maximally efficient minimal working example.  We're going to build a deep learning
 iOS app which classifies CIFAR10 in 5 minutes.  If you'd like to see a live
-code demonstration of this tutorial please checkout my youtube video.
+code demonstration of this tutorial please checkout my <a href="https://www.youtube.com/watch?v=zd90QRTzcvI">youtube video</a>.
 
 ## **Installs**
 
@@ -133,7 +133,7 @@ func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
     image.draw(in: rect)
     let newImage = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
+    UIGraphihttps://youtu.be/zd90QRTzcvIcsEndImageContext()
 
     return newImage!
 }
