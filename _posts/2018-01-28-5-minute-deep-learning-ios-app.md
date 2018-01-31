@@ -11,7 +11,7 @@ categories: jekyll update
 </head>
 
 ## **Introduction**
-Howdy, Deep learning is really hot right now and people seem to like iphones.
+Howdy, Deep learning is really hot right now and people seem to like iPhones.
 Let's put them together :).  A while back there weren't many tutorials on how
 to do this, now there are quite a few more.  I'd like to add to the space with
 a maximally efficient minimal working example.  We're going to build a deep learning
@@ -27,7 +27,7 @@ install them by buying a mac and then running:
 
 ## **Train the Model**
 We don't have time to design a model from scratch!  We only have 5 minutes!  Let's
-just take <a href="https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py">this one</a>.
+just steal <a href="https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py">this one</a>.
 If you're familiar with keras you'll see that it's just loading in the CIFAR dataset
 and then training a simple CNN on it.  We need to make a few adjustments to complete
 this tutorial quickly.  First, change the number of epochs on line 18 to only 1.
@@ -48,8 +48,9 @@ model_name = 'keras_cifar10_trained_model.h5'
 
 One last thing before we start training.  We need to get this trained model in to
 a form that Steve Jobs can understand.  To do that we go to <a href="https://developer.apple.com/documentation/coreml/converting_trained_models_to_core_ml">Apple for guidance</a>.
-At the bottom of the page you will see a Convert Model Section copy those lines of
-code to the bottom of our copied Keras model file. and change them to look like:
+At the bottom of the page you will see a Convert Model Section steal those lines of
+code pasted them at the bottom of our stolen keras model file.  We need to make a few small
+changes to have them work with keras models.  Update them as below.
 
 {% highlight python %}
 import coremltools
@@ -57,11 +58,10 @@ coreml_model = coremltools.converters.keras.convert(model, input_names=['image']
 coreml_model.save('CIFAR.mlmodel')
 {% endhighlight %}
 
-If you saved this in a file called mlcore_convert.py then you just have to running
+If you saved this in a file called mlcore_convert.py then to start the model cooking
+you just have to run:
 
 `python mlcore_convery.py`
-
-from the command line to start this model cooking.
 
 ## **Build an iOS App**
 While our model is simmering let's build an iOS app for classifiying images.  I
@@ -77,7 +77,7 @@ People seem to like Apple so it can't be too bad right?  Now just open up this
 fancy new Xcode project and we're done with our App!
 
 (Note sometimes Apple likes to change the name of their links for no reason so if
-    the above wget command doesn't work you can also download this xcode project
+    the above wget command doesn't work you can also download this Xcode project
     <a href="https://developer.apple.com/documentation/vision/classifying_images_with_vision_and_core_ml">here</a>)
 
 ## **Fix the Broken Stuff**
@@ -90,13 +90,13 @@ to use our model instead.
 2. The picture size used in CIFAR is different than that taken by your iPhone.  We
 need to scale the images.
 
-#### **1. Add the model**
+#### **1. Add the Model**
 
 Let's incorporate our new model!  Change line 30 of ImageClassificationViewController.swift to:
 
 `let model = try VNCoreMLModel(for: CIFAR().model)`
 
-Now copy the new model we just trained with Keras to `Vision+ML Example/Model/CIFAR.mlmodel` and link
+Now copy the new model we just trained with keras to `Vision+ML Example/Model/CIFAR.mlmodel` and link
 it using Xcode's build phases.
 
 <figure class="half">
@@ -157,5 +157,5 @@ This will resize all images before running them through our model.
 
 ## **TADA!!!**
 
-We're done!  Just build the app now : ). Now you can put any simple Keras model
+We're done!  Just build the app now : ). You can put any simple keras model
 in to an iOS application.  Try making the model better or classifying other things.
