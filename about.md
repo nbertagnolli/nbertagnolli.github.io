@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-I am currently a Senior Machine Learning Engineer at <a target = "_blank" href="www.lyssn.io">Lyssn</a> where I work on teaching machines how to help therapists be their best selves.
+I am currently a Senior Machine Learning Engineer at <a href="http://www.lyssn.io">Lyssn</a> where I work on teaching machines how to help therapists be their best selves.
 
 Previously I was a Data Scientist working for 3M HIS where I leveraged large quantities of healthcare data to improve hospitals, and patient care.
 
