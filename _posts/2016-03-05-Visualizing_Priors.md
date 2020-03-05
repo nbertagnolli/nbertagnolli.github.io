@@ -15,6 +15,9 @@ categories: jekyll update
 ## **Introduction**
 I've been playing around a little with parameter estimation and Bayesian statistics and thought that I'd make a quick little visualization of how prior beliefs affect our posterior distribution.  In this tutorial we will walk through thinking about whether or not a coin is fair and visualize how our estimate changes with data with respect to our prior beliefs.  Let's get started!
 
+## **Appeal to Reader**
+If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://towardsdatascience.com/visualizing-bayesian-priors-cec2fea3e386">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium.
+
 ## **Problem**
 You're in Vegas watching people bet on the outcome of a coin toss.  If it is heads then you win double your bet and if it is tails the house takes your money.  You decide to count the number of times that you see each outcome and want to determine the value of the coin.  Let $$H$$ be the probability of getting heads using the Casino's coin, and let $$D$$ be the data set of our tosses.  Let's assume that we saw 100 coin tosses and out of those 100 tosses 40 of them were heads.  What is the weighting of the coin?  Naturally you would say that $$H=\frac{40}{100} = .4$$ but how did you get that number?  Let's walk through the derivation!
 
@@ -89,7 +92,7 @@ def posterior_gaussian_prior(H, k, n, std=.05, mu=.5):
 
 def posterior_beta_prior(H, k, n, a=.1, b=.1):
     normalizer = scipy.special.gamma(a + b) / (scipy.special.gamma(a) * scipy.special.gamma(b))
-    
+
     return scipy.special.comb(n,k) * H**k * (1 - H)**(n - k) * normalizer * H**(a - 1) * (1 - H)**(b - 1)
 
 def beta(x, a, b):
@@ -98,14 +101,14 @@ def beta(x, a, b):
     return normalizer * x**(a - 1) * (1 - x)**(b - 1)
 {% endhighlight %}
 
-Now let's look at how the priors affect our parameter estimation visually. 
+Now let's look at how the priors affect our parameter estimation visually.
 First let's generate a set of coin flip experiments for $$H=.3$$
 
 {% highlight python %}
 # Number of flips in each trial
 n_vals = [0, 1, 2, 3, 4, 5, 16, 32, 64, 128, 256, 512]
 
-# Simulate the number of heads drawn from a coin with H=.3 
+# Simulate the number of heads drawn from a coin with H=.3
 k_vals = []
 H = .3
 for n in n_vals:
@@ -128,11 +131,3 @@ Below I have plotted the evolution of the posterior with increasing evidence (La
 </figure>
 
 First off notice how as the sample size increases all of the posteriors tend toward a normal distribution centered at $$H=.3$$.  You can see clearly that the prior has a large effect when the sample size is small and as the sample size increases the likelihood begins to dominate.  Also notice how the prior can affect the convergence rate of the posterior.  For example, for both the uniform and beta prior after 64 flips the coins true bias falls within our 95% confidence interval, whereas for the Gaussian our true bias doesn't appear in our interval until around 256 flips.  The takeaway message here is that if we start out not knowing much about our value, uniform or beta distribution it is easy to convince the model that the coin is biased.  Whereas, if our model has a strong belief that the coin is fair, i.e. the Gaussian prior, then it will take much more data to convince it that the coin is in fact not fair.
-
-
-
-
-
-
-
-
