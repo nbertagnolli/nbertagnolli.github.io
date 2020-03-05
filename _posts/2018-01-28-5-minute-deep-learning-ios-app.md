@@ -18,6 +18,9 @@ a maximally efficient minimal working example.  We're going to build a deep lear
 iOS app which classifies CIFAR10 in 5 minutes.  If you'd like to see a live
 code demonstration of this tutorial please checkout my <a href="https://www.youtube.com/watch?v=zd90QRTzcvI">youtube video</a>.
 
+## **Appeal to Reader**
+If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://towardsdatascience.com/make-a-deep-learning-ios-app-in-five-minutes-b05a5c6b03a4">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium.
+
 ## **Installs**
 
 Make sure you have keras, coremltools, and xcode before getting started.  You can
