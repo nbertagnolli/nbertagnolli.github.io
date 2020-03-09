@@ -19,7 +19,7 @@ categories: jekyll update
 Generative Adversarial Networks (GANs) are a model framework where two models are trained together, one learns to generate synthetic data from the same distribution as the training set and the other learns to distinguish true data from generated data. When I was first learning about them, I remember being kind of overwhelmed with how to construct the joint training. I haven't seen a tutorial yet that focuses on building a trivial GAN so I'm going to try and do that here. No image generation, no fancy deep fried conv nets. We are going to train a model capable of learning to generate even numbers in about 50 lines of Python code. All of the code for this project can be found <a href="https://github.com/nbertagnolli/pytorch-simple-gan">here</a>.
 
 ## **Appeal to Reader**
-If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium if you can.
+If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://medium.com/@nmbertagnolli/build-a-super-simple-gan-in-pytorch-54ba349920e4">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium if you can.
 
 ## **What is a GAN?**
 
