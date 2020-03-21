@@ -11,6 +11,9 @@ categories: jekyll update
   </script>
 </head>
 
+<figure class="half">
+	<img src="/assets/bert_scikit_transformer/IMG_00006.PNG">
+</figure>
 
 ## **Introduction**
 Getting state of the art results in NLP used to be a harrowing task. You’d have to design all kinds of pipelines, do part of speech tagging, link these to knowledge bases, lemmatize your words, and build crazy parsers. Now just throw your task at BERT and you’ll probably do pretty well. The purpose of this tutorial is to set up a minimal example of sentence level classification with BERT and Sci-kit Learn. I’m not going to talk about what BERT is or how it works in any detail. I just want to show you in the smallest amount of work how to use this model really easily with Sci-kit Learn. At the end of this blog post we’ll have a world class Ekman emotion detection model and BERT packaged into a modular Sci-kit Learn transformer which we can plug and play in one line of code with any existing Sci-kit pipeline!
@@ -216,9 +219,15 @@ What I love about using pipelines is they are so flexible and I can create these
 
 After running the above model we get pretty good results out of the box on our validation set. Some of the classes do terribly, but most do beyond amazing. Take a look. There is almost perfect classification on our validation set for a number of classes. This model only uses the CLS embedding from the BERT transformer and an SVM and it gets almost perfect predictions across all of the major labels! That’s pretty bananas.
 
+<figure class="half">
+	<img src="/assets/bert_scikit_transformer/bert-emotion-prediction.png">
+</figure>
 
 These results were surprisingly good so I took a look at the confusion matrix and it seems like enthusiasm and fun are both being classified as happiness which I’m 100% okay with. It looks like the real problem children are empty and relief but if I’m being perfectly honest I don’t even know what those emotions are 🤷‍♂ so I’m going to mark this as a success.
 
+<figure class="half">
+	<img src="/assets/bert_scikit_transformer/emotion_confusion.png">
+</figure>
 
 ## **Conclusion**
 Sci-kit Learn transformers are super convenient. Now we can easily plug BERT based features into any Sci-kit Learn model we want! It’s just a matter of defining our BERT model and adding it as a featurization step to a pipeline. Sci-kit Learn takes care of the rest. Try incorporating these features into one of your old models and see if it improves performance. It did for me.
