@@ -12,7 +12,7 @@ categories: jekyll update
 </head>
 
 <figure class="half">
-	<img src="/assets/bert_scikit_transformer/IMG_00006.PNG">
+	<img src="/assets/bert_scikit_transformer/IMG_0006.PNG">
 </figure>
 
 ## **Introduction**
