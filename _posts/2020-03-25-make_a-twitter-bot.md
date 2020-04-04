@@ -28,7 +28,7 @@ In this post we'll:
 When you're done with the tutorial you'll be able to create a bot just like <a href="https://twitter.com/deepproverbs">this one</a> which tweets out generated proverbs. All code for this project can be found in <a href="https://github.com/nbertagnolli/DeepProverbs">this</a> repository.  Let's get started : ).
 
 ## **Appeal to Reader**
-If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://towardsdatascience.com/build-a-bert-sci-kit-transformer-59d60ddd54a5">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium.
+If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://medium.com/@nmbertagnolli/how-to-make-a-gpt2-twitter-bot-8669df60e60a">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium.
 
 ## **Setup**
 This tutorial will use Python3. We will be using the gpt2-simple library to train our model. It relies on tensorflow.contrib which was removed in tensorflow 2.0 so you'll need to use an earlier version : /. Sorry about that. To make things easy I've put together a docker container and Makefile for easy running in the repository. You can load up a working environment to play in by building the docker container:
