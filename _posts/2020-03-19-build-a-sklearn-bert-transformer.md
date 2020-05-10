@@ -9,6 +9,8 @@ categories: jekyll update
   <script type="text/javascript"
           src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
+  <link rel="canonical" href="https://towardsdatascience.com/build-a-bert-sci-kit-transformer-59d60ddd54a5">
+
 </head>
 
 <figure class="half">

@@ -8,6 +8,9 @@ categories: jekyll update
   <script type="text/javascript"
           src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
+  <link rel="canonical" href="https://medium.com/@nmbertagnolli/build-a-super-simple-gan-in-pytorch-54ba349920e4">
+
+  
 </head>
 
 <figure class="half">

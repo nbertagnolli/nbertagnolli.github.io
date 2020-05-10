@@ -8,6 +8,8 @@ categories: jekyll update
   <script type="text/javascript"
           src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
+  <link rel="canonical" href="https://towardsdatascience.com/make-a-deep-learning-ios-app-in-five-minutes-b05a5c6b03a4">
+
 </head>
 
 ## **Introduction**
