@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Counsel Chat: Bootstrapping High-Quality Therapy Data"
+title: "Counsel Chat Bootstrapping High-Quality Therapy Data"
 data: 2020-05-11
 categories: jekyll update
 ---
