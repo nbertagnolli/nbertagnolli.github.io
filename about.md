@@ -15,6 +15,8 @@ My current research deals with Machine Learning and Natural Language Processing.
 find a copy of my <a target = "_blank" href = "/assets/Bertagnolli_CV.pdf">CV</a>
 by following the provided link.
 
+[hi](http://google.com)
+
 
 
 
