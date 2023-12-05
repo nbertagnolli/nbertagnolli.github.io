@@ -1,12 +1,15 @@
-links: [[LLMs]]
+---
+layout: post
+title: "GPT Tool Calling"
+data: 2023-12-03
+categories: jekyll update
+---
+
 # Introduction
 
 Function calling with LLMs is one of the neatest features in this space I've seen in a while. It allows you to orchestrate workflows with human language. Think about that for a second. Instead of painstakingly writing out your own control flow and managing all edge cases you can describe what you want done, provide some functions, and the LLM will take care of the rest (mostly).  I think this is pretty revolutionary!
 
 I wanted to build a really simple example walking through how you could implement an agent using function calling from a set of methods that you've created.  There are some great tools out there like LangChain which can help with it, but honestly I find them a bit too bulky and hard to reason about for many applications that I work on. When building production LLM services it's really really important to manage your prompts and keep hallucinations under control. In my experience some of the frameworks that feel like magic in the beginning can become hard to handle and reason about as they grow. This is in part due to all of the prompting behind the scene that you don't directly see.  The purpose of this tutorial is to create a lightweight function calling agent mostly from scratch to show how easy it is to get started without a framework. In this post we will:
-
-1. Create a set of functions the agent can choose from
-2. Use a simple sentence transformer to 
 
 # What should our agent do?
 The first step is to figure out what we want our agent to do and construct prompts to guide it.
@@ -17,9 +20,9 @@ Here is the workflow we'd like our agent to follow.
 ```python
 workflow = [
 	"Please add 1 and 5",
-	"please multiply 5 by the result",
-	"please divide the result by 15",
-	"Say duck this many times "
+	"please multiply 5 by: ",
+	"please divide the following number up by 15: ",
+	"Say duck this many times please: "
 ]
 ```
 
@@ -50,9 +53,9 @@ We start by grabbing our  OpenAI Key.  We step through each instruction and call
 
 Our problem is simple so this makes sense. The interesting bit comes when we augment ChatGPT with tools. Let's give it some functions to work with and see if we can fix this ducking problem!
 
-# Function Calling
+# Function Calling through Tools!
 
-Let's start by defining three mathematical operations in a python module called `utils.py`
+Let's start by defining three mathematical functions.
 
 ```python
 def add_two_numbers(a: float, b: float) -> float:
@@ -68,27 +71,28 @@ def divide_two_numbers(a: float, b: float) -> float:
     return a / b
 ```
 
-These three functions do basically nothing but we can give our agent the ability to use them through function calling.  OpenAI has trained a few of their models to understand how to recognize when to use provided "tools" (functions) and how to structure input for them.  The OpenAI API takes in a JSON representation of the function and can use this to structure calls to this function.  If we were to convert `add_two_numbers` to function calling JSON it would look like this:
+These three functions do basically nothing but we can give our agent the ability to use them through tool calling.  OpenAI has trained a few of their models to understand how to recognize when to use provided "tools" (functions) and how to structure input for them.  The OpenAI API takes in a JSON representation of the function and can use this to structure calls to this function.  If we were to convert `add_two_numbers` to function calling JSON it would look like this:
 
 ```json
-{'name': 'add_two_numbers',
- 'description': 'add_two_numbers(a: float, b: float) -> float - This function will add a and b together and return the result.',
- 'parameters': {'title': 'add_two_numbersSchemaSchema',
-  'type': 'object',
-  'properties': {'a': {'title': 'A', 'type': 'number'},
-   'b': {'title': 'B', 'type': 'number'}},
-  'required': ['a', 'b']}}
+{'type': 'function',
+ 'function': {'name': 'add_two_numbers',
+  'description': 'add_two_numbers(a: float, b: float) -> float - This function will add a and b together and return the result.',
+  'parameters': {'title': 'add_two_numbersSchemaSchema',
+   'type': 'object',
+   'properties': {'a': {'title': 'A', 'type': 'number'},
+    'b': {'title': 'B', 'type': 'number'}},
+   'required': ['a', 'b']}}}
 ```
 
-We can generate this in a few different ways.  The easiest is to use a nice builtin utility from langchain which will automatically construct these inputs for you from a given function.
+We can generate this in a few different ways.  The easiest is to use a nice builtin utility from LangChain which will automatically construct these inputs for you from a given function.
 
 ```python
-from langchain.tools.render import format_tool_to_openai_function
+from langchain.tools.render import format_tool_to_openai_tool
 from langchain.agents import tool
-function_calling_def = format_tool_to_openai_function(tool(add_two_numbers))
+function_calling_def = format_tool_to_openai_tool(tool(add_two_numbers))
 ```
 
-This returns what we saw above.  It's very convenient and we'll use it in this post.  I have had it mess up on me sometimes particularly when using default arguments.  If you want more control you can define a `pydantic` model for your function and use the `schema()` method to get a complinat JSON output.
+This returns what we saw above.  It's very convenient and we'll use it in this post.  I have had it mess up on me sometimes particularly when using default arguments.  If you want more control you can define a `pydantic` model for your function and use the `schema()` method to get a compliant JSON output.
 
 ```python
 from pydantic import BaseModel
@@ -108,7 +112,7 @@ Running this yields:
   'b': {'title': 'B', 'type': 'number'}},
  'required': ['a', 'b']}
 ```
-We are missing the description field but ChatGPT will still be able to use it. I generally just use the nice LangChain helper.
+We are missing the description field and the upper type field. ChatGPT will still be able to use it without a description but we need to manually add in the type. I generally just use the nice LangChain helper.
 
 Now that we understand the basics of formatting these functions let's use one with ChatGPT.
 To do that we'll need to pass in a list of these functions to the chat completion endpoint.
@@ -117,45 +121,34 @@ To do that we'll need to pass in a list of these functions to the chat completio
 messages = [{"role": "system", "content": ""},
             {"role": "user", "content": "Please add 1 and 5"}]
 function = format_tool_to_openai_function(tool(add_two_numbers))
-result = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k-0613", messages=messages, functions=[function])
+result = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k-0613", messages=messages, tools=[function])
 ```
 
 We've just added in the `functions` parameter to the chat completions endpoint and look at what we get!
 ```json
-<OpenAIObject chat.completion id=chatcmpl-8Rr8fKQwyPX6jAusROXRrS9lcRfhF at 0x12f09b560> JSON: {
-  "id": "chatcmpl-...",
-  "object": "chat.completion",
-  "created": 1701649813,
-  "model": "gpt-3.5-turbo-16k-0613",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": null,
-        "function_call": {
-          "name": "add_two_numbers",
-          "arguments": "{\n  \"a\": 1,\n  \"b\": 5\n}"
-        }
-      },
-      "finish_reason": "function_call"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 78,
-    "completion_tokens": 23,
-    "total_tokens": 101
-  },
-  "system_fingerprint": null
-}
+{'id': 'chatcmpl-8SGersCGYmrdnIu67Or81Jhg2iNAS',
+ 'choices': [{'finish_reason': 'tool_calls',
+   'index': 0,
+   'message': {'content': None,
+    'role': 'assistant',
+    'function_call': None,
+    'tool_calls': [{'id': 'call_bxEckzbIygLcQtixYHScBfCo',
+      'function': {'arguments': '{\n  "a": 1,\n  "b": 5\n}',
+       'name': 'add_two_numbers'},
+      'type': 'function'}]}}],
+ 'created': 1701747909,
+ 'model': 'gpt-3.5-turbo-16k-0613',
+ 'object': 'chat.completion',
+ 'system_fingerprint': None,
+ 'usage': {'completion_tokens': 23, 'prompt_tokens': 78, 'total_tokens': 101}}
 ```
 
-Notice how under `choices` our `finish_reason` is set to `function_call`. This means that the model is recommending that we call a function.  We can figure out which function it want's to call by looking at `result.choices[0].message.function_call.name` In this case it's `add_two_numbers` We can then get the arguments with `result.choices[0].message.function_call.arguments` which will be a JSON parsable object. Pretty neat! Let's call the function now!
+Notice how under `choices` our `finish_reason` is set to `tool_calls`. This means that the model is recommending that we call a tool.  We can figure out which tool it want's to call by looking at `result.choices[0].message.tool_calls[0].name` In this case it's `add_two_numbers` We can then get the arguments with `result.choices[0].message.tool_calls[0].arguments` which will be a JSON parsable object. Pretty neat! Let's call the function now!
 
 ```python
 import json
-f = globals()[result.choices[0].message.function_call.name]
-f(**json.loads(result.choices[0].message.function_call.arguments))
+f = globals()[result.choices[0].message.tool_calls[0].name]
+f(**json.loads(result.choices[0].message.tool_calls[0].arguments))
 ```
 
 And we get 6!  Here we take advantage of python's `globals()` function.   `globals()` is a built-in function that returns a dictionary containing the current global symbol table. The global symbol table is a namespace that contains all the global variables, functions, and other objects defined at the top level of a script or module. When you define a variable or function outside of any function or class in your Python code, it becomes a part of the global symbol table.  This allows us to use the string name of a function to grab the function directly and call it.
@@ -186,35 +179,24 @@ Running this yields:
 Curious why is that? If we print out `output` we can get an idea about what's happening here.
 
 ```json
-{
-  "id": "chatcmpl-8Rt6jiX06UfYp33N4XxSb9T3CmbXW",
-  "object": "chat.completion",
-  "created": 1701657381,
-  "model": "gpt-3.5-turbo-16k-0613",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": null,
-        "function_call": {
-          "name": "multiply_two_numbers",
-          "arguments": "{\n  \"a\": 5,\n  \"b\": 6\n}"
-        }
-      },
-      "finish_reason": "function_call"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 374,
-    "completion_tokens": 23,
-    "total_tokens": 397
-  },
-  "system_fingerprint": null
-}
+{'id': 'chatcmpl-8SGki2ypSTmdwMo0WtYjKrM9AYsb7',
+ 'choices': [{'finish_reason': 'tool_calls',
+   'index': 0,
+   'message': {'content': None,
+    'role': 'assistant',
+    'function_call': None,
+    'tool_calls': [{'id': 'call_V5kcyVWTeIQMHxzUGsoYS8hy',
+      'function': {'arguments': '{\n  "a": 5,\n  "b": 15\n}',
+       'name': 'multiply_two_numbers'},
+      'type': 'function'}]}}],
+ 'created': 1701748272,
+ 'model': 'gpt-3.5-turbo-16k-0613',
+ 'object': 'chat.completion',
+ 'system_fingerprint': None,
+ 'usage': {'completion_tokens': 23, 'prompt_tokens': 352, 'total_tokens': 375}}
 ```
 
-We see that there is `choices.message.content` is null. This is because when we use the function calling version of ChatGPT it passes back a `function_call` instead of content.  We need something to help us parse the input based on whether it's a function call or not.
+We see that there is `choices.message.content` is null. This is because when we use the function calling version of ChatGPT it passes back a `tool_calls` instead of content.  We need something to help us parse the input based on whether it's a function call or not.
 
 ```python
 def gpt_process_function_calling(gpt_response):
@@ -222,9 +204,9 @@ def gpt_process_function_calling(gpt_response):
     finish_reason = gpt_response.choices[0].finish_reason
     # We check if we finished for an explicit function call or if we finished because of a long query
     # and gpt suggests a function call
-    if finish_reason == "function_call":
-        function_name = gpt_response.choices[0].message.function_call.name
-        arguments = json.loads(gpt_response.choices[0].message.function_call.arguments) 
+    if finish_reason == "tool_calls":
+        function_name = gpt_response.choices[0].message.tool_calls[0].function.name
+        arguments = json.loads(gpt_response.choices[0].message.tool_calls[0].function.arguments)
         func = globals()[function_name]
         return func(**arguments)
     else:
@@ -232,41 +214,86 @@ def gpt_process_function_calling(gpt_response):
         return gpt_response.choices[0].message.content
 ```
 
-In this function we check to see if GPT's response is a function call and if so call a function. If not, access the chat bot's content directly.
+In this function we check to see if GPT's response is a function call and if so call a function. If not, access the chat bot's content directly.  This allows us to mix function calling with normal GPT prompting as in the final step of our workflow which doesn't have a function to help.  Now if we change output to be:
 
+```python
+raw_output = openai.chat.completions.create(model=GPT_MODEL_NAME, messages=messages, functions=functions)
+output = gpt_process_function_calling(raw_output)
+```
+We get what we were after!!!
+```
+[6, 30, 2.0, 'duck duck']
+```
+GPT made a decision to reason itself instead of make the tool call! This is really pretty incredible. However, as I was working on this blog post this result was intermittent. 50% of the time it would choose to make a function call. This is both annoying and it highlights something important. These systems are stochastic in that there is some random in how they behave. If you want to ensure the correct behavior you might consider doing a little engineering around which functions get passed as tools.  In the next section we'll discuss a very basic system for limiting tool context on GPT calls.
 
 # function finding
-The more functions you send the harder it can be for GPT to find the right one. You can prefilter the functions to send in on each workflow step.
+We need to figure out if a function is a good fit for a command in our workflow.  This has the added benefit of letting us reduce the context sent to GPT as well.  The more functions you send the harder it can be for GPT to find the right one. You can prefilter the functions to send in on each workflow step using sentence-transformers!
 
 ```python
 from sentence_transformers import SentenceTransformer, util
 import inspect
 import types
+import torch
 
 # Assign the closest two tools for each step in the workflow
 embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Corpus with example sentences
-function_registry = [func for func in dir(tools) if isinstance(getattr(tools, func), types.FunctionType)]
-function_descriptions = [inspect.getsource(globals()[func]) for func in function_registry]
-registry_embeddings = embedder.encode(function_descriptions, convert_to_tensor=True)
+# List of all functions
+function_registry = ["add_two_numbers", "multiply_two_numbers", "divide_two_numbers"]
 
-top_k = min(3, len(function_descriptions))
+# Use the inspect library to get a string version of the function
+# including the docstring
+function_descriptions = [inspect.getsource(globals()[func]) for func in function_registry]
+
+# Embed every function
+function_embeddings = embedder.encode(function_descriptions, convert_to_tensor=True)
+
+top_k = min(1, len(function_descriptions))
 workflow_functions = []
+
+# step through each workflow instruction and encode it.
 for query in workflow:
     query_embedding = embedder.encode(query, convert_to_tensor=True)
 
     # We use cosine-similarity and torch.topk to find the highest 5 scores
-    cos_scores = util.cos_sim(query_embedding, registry_embeddings)[0]
+    cos_scores = util.cos_sim(query_embedding, function_embeddings)[0]
     top_results = torch.topk(cos_scores, k=top_k)
-    workflow_functions.append([function_registry[i] for i in top_results.indices.tolist()])
+	# We only add a function if it's closer than .25 by cosine distance.
+    if max(cos_scores) > .2:
+        workflow_functions.append([function_registry[i] for i in top_results.indices.tolist()])
+    else:
+        workflow_functions.append([])
+```
 
+The output of this has a single function for each step:
 
+```
+[['add_two_numbers'],
+ ['multiply_two_numbers'],
+ ['divide_two_numbers'],
+ []]
+```
+
+Notice we use a .2 cutoff for the cosine similarity saying that any instruction which has less than this score for all similarities shouldn't have any function calls.  The last step is adding in some argument filtering based on whether or not we think a function should be used.
+```python
 outputs = []
 output = ""
-for instruction, funcs in zip(workflow, workflow_functions):
-    functions = [format_tool_to_openai_function(tool(globals()[t])) for t in funcs]
-    response = open_ai_generation("", instruction + f" {output}", functions=functions)
-    output = gpt_process_function_calling(response)
+for instruction, functions in zip(workflow, workflow_functions):
+    kwargs = {}
+    if len(functions) > 0:
+        functions = [format_tool_to_openai_tool(tool(globals()[t])) for t in functions]
+        kwargs = {"tools": functions}
+    messages = [{"role": "system", "content": ""},
+                {"role": "user", "content": instruction + f" {output}"}]
+    print(messages)
+    output = openai.chat.completions.create(model=GPT_MODEL_NAME,
+                                            messages=messages,
+                                            **kwargs)
+    output = gpt_process_function_calling(output)
     outputs.append(output)
 ```
+
+And now we get two `duck duck` every time!!!
+
+# Conclusion
+Tool/Function calling is a game changer in the LLM space. This allows us to use LLMs to orchestrate workflows with human language. This is incredibly powerful. Think about how UIs will change under this paradigm, or how users will be able to interact with APIs without technical know how. Take the knowledge we acquired here and go build something cool!
