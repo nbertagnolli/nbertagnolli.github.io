@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "GPT Tool Calling"
+title: "Don't GPT Like a Fool Use a Tool!"
 data: 2023-12-03
 categories: jekyll update
 ---
