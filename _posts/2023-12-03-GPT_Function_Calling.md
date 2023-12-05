@@ -5,6 +5,20 @@ data: 2023-12-03
 categories: jekyll update
 ---
 
+<head>
+  <script type="text/javascript"
+          src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <link rel="canonical" href="https://towardsdatascience.com/how-to-get-feature-importances-from-any-sklearn-pipeline-167a19f1214">
+
+</head>
+
+<figure class="half">
+	<img src="/assets/dont_gpt_like_a_fool_use_a_tool.jpeg">
+	<figcaption>Photo by author with the help of StableDiffusion-xl</figcaption>
+</figure>
+
+
 # Introduction
 
 Function calling with LLMs is one of the neatest features in this space I've seen in a while. It allows you to orchestrate workflows with human language. Think about that for a second. Instead of painstakingly writing out your own control flow and managing all edge cases you can describe what you want done, provide some functions, and the LLM will take care of the rest (mostly).  I think this is pretty revolutionary!
@@ -296,4 +310,4 @@ for instruction, functions in zip(workflow, workflow_functions):
 And now we get two `duck duck` every time!!!
 
 # Conclusion
-Tool/Function calling is a game changer in the LLM space. This allows us to use LLMs to orchestrate workflows with human language. This is incredibly powerful. Think about how UIs will change under this paradigm, or how users will be able to interact with APIs without technical know how. Take the knowledge we acquired here and go build something cool!
+Tool/Function calling is a game changer in the LLM space. This allows us to use LLMs to orchestrate workflows with human language. This is incredibly powerful. Think about how UIs will change under this paradigm, or how users will be able to interact with APIs without technical know how. Take the knowledge we acquired here and go build something cool!  A full Jupyter notebook can be found [here](https://gist.github.com/nbertagnolli/016badab109b46b9510206cf5e6e67c0).
