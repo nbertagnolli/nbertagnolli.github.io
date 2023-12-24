@@ -32,6 +32,9 @@ By the end of the series we’ll build a simple data visualization application t
 
 Let’s get started!
 
+## **Appeal to Reader**
+If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://medium.com/gitconnected/data-science-portfolio-projects-part-i-360c182d25b9">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium.
+
 # **Architecture Overview**
 What we are building is not entirely in Python, but it will be close. I promise. We’ll use a few cool tools to build our application. The main idea is to create a static website that we can host on Github Pages. Github pages is an awesome tool for creating sites and documentation associated with your repositories. It turns out, we can also use it to host low traffic static websites on the cheap as well. What this means is that the functionality of our site has to exist client side, that’s the static part.
 
