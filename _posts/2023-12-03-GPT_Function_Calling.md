@@ -25,6 +25,11 @@ Function calling with LLMs is one of the neatest features in this space I've see
 
 I wanted to build a really simple example walking through how you could implement an agent using function calling from a set of methods that you've created.  There are some great tools out there like LangChain which can help with it, but honestly I find them a bit too bulky and hard to reason about for many applications that I work on. When building production LLM services it's really really important to manage your prompts and keep hallucinations under control. In my experience some of the frameworks that feel like magic in the beginning can become hard to handle and reason about as they grow. This is in part due to all of the prompting behind the scene that you don't directly see.  The purpose of this tutorial is to create a lightweight function calling agent mostly from scratch to show how easy it is to get started without a framework. In this post we will:
 
+
+## **Appeal to Reader**
+If you pay for Medium, or haven't used your free articles for this month, please consider reading <a href="https://medium.com/gitconnected/dont-gpt-like-a-fool-use-a-tool-9ccdcb0bfa0c">this article there</a>.  I post all of my articles here for free so everyone can access them, but I also like beer and Medium is a good way to collect some beer money : ). So please consider buying me a beer by reading this article on Medium.
+
+
 # What should our agent do?
 The first step is to figure out what we want our agent to do and construct prompts to guide it.
 We want a simple system where we can specify some linear tasks in human language and have our agent make decisions about how to do them.  For this task, we'll stay very simple and just have the agent perform some mathematical operations in order.  In reality these functions could do whatever you want but to limit dependencies and make things clear we'll stay simple.
