@@ -6,12 +6,18 @@ group : navigation
 ---
 
 
-I am currently a Data Scientists at 3M HIS.  I work on building new products based on large amounts of healthcare data.  In a past life I was pursuing a PhD in computer science with a focus on machine learning and data mining.  I am interested in developing, implementing, and understanding algorithms that are capable of acquiring new knowledge and automatically adapting their behaviour over time. 
+I am currently a Principle Machine Learning Engineer at BENLabs.  I work on building out infrastructure to serve large models at scale along with tackling problems related to creating value from generative models.  I think a lot about how to use LLMs to improve human communication. If you're curious, take a look at a company I started [Mpathic](https://mpathic.ai/).
+
+ In a past life I worked on building new products based on large amounts of healthcare data, tried my hand at a PhD in computer science focused on understanding representation learngin.  I am interested in developing, implementing, and understanding algorithms that are capable of acquiring new knowledge and automatically adapting their behaviour over time. 
 
 <!-- My PhD Advisor is <a target = "_blank" href = "http://www.svivek.com">Dr. Vivek Srikumar</a> -->
 
 
 <h1> Publications </h1> 
+
+* **Temporal Bottlneck Attention for Video Recognition** S.Carvalho, N.M. Bertagnolli and T.Folkman (2021) <a target = "_blank" href = "https://ieeexplore.ieee.org/abstract/document/9680124">PDF</a>
+
+* **How do you feel?  Using Natural Language Processing to automatically rate emotion in psycotherapy** M. Tanana, C. S. Soma, P. B. Kuo, N. M. Bertagnolli, A. Dembe, B. T. Pace, V. Srikumar, D. C. Atkins and Z. E. Imel  (2020) <a target = "_blank" href = "https://link.springer.com/article/10.3758/s13428-020-01531-zf">PDF</a>
 
 * **Coordinated metabolic transitions during Drosophila embryogenesis and the onset of aerobic glycolysis** JM Tennessen, NM Bertagnolli, J Evans, MH Sieber, J Cox, CS Thummel (2014) <a target = "_blank" href = "http://www.g3journal.org/content/4/5/839.full.pdf">PDF</a>
 
