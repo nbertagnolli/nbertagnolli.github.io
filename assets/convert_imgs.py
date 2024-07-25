@@ -20,10 +20,17 @@ def convert_webp_to_png(directory):
                 img.save(png_path, "PNG")
                 print(f"Converted {filename} to {os.path.basename(png_path)}")
 
+            # Delete the original webp file
+            try:
+                os.remove(webp_path)
+                print(f"Deleted original file: {filename}")
+            except OSError as e:
+                print(f"Error deleting file {filename}: {e}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Convert all WEBP files in a directory to PNG format."
+        description="Convert all WEBP files in a directory to PNG format and delete the original WEBP files."
     )
     parser.add_argument(
         "directory", type=str, help="The directory containing WEBP files."
