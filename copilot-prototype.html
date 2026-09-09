@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clinical Co-Pilot — Prototype</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.2/babel.min.js"></script>
+<style>
+/* ---------------------------------------------------------------
+   Palette
+
+   Deep violet carries the product voice: active client, citations,
+   the trajectory line, the highlight in a source document.
+   Teal marks a goal that is on track, amber marks one going stale,
+   and a desaturated crimson is reserved for risk alone — kept out
+   of every other surface so it never loses its meaning.
+
+   Typography encodes provenance: sans-serif is the system speaking,
+   serif is verbatim from the record.
+   ---------------------------------------------------------------*/
+:root{
+  --paper:#F7F6FA;
+  --surface:#FFFFFF;
+  --ink:#15171A;
+  --ink-body:#2E3038;
+  --ink-soft:#5C5F6B;
+  --ink-faint:#8B8E9B;
+  --rule:#E5E3EE;
+  --rule-soft:#F0EEF7;
+
+  --brand:#3E2E73;
+  --brand-deep:#31245C;
+  --brand-soft:#EDEAF6;
+  --brand-mid:#D6CFEA;
+
+  --teal:#166E73;
+  --teal-soft:#E2F0F0;
+  --magenta:#A8327B;
+
+  --attn:#8A5A14;
+  --attn-soft:#F7EEDC;
+
+  --risk:#9E2B45;
+  --risk-deep:#7F2138;
+  --risk-soft:#FAE8EC;
+  --risk-line:#E9C6D0;
+  --risk-text:#6E2032;
+
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+#root{height:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- shell ---------- */
+.app{display:flex;flex-direction:column;height:100%}
+.topbar{
+  display:flex;align-items:center;gap:28px;
+  padding:0 24px;height:56px;flex:0 0 auto;
+  background:var(--surface);border-bottom:1px solid var(--rule);
+}
+.brand{display:flex;align-items:baseline;gap:9px}
+.brand-mark{
+  width:11px;height:11px;border-radius:3px;
+  background:var(--brand);flex:0 0 auto;transform:translateY(-1px);
+}
+.brand-name{font-weight:600;letter-spacing:-0.015em}
+.brand-sub{color:var(--ink-faint);font-size:12.5px}
+.switcher{display:flex;gap:2px;margin-left:auto}
+.switcher-label{
+  color:var(--ink-faint);font-size:12.5px;
+  align-self:center;margin-right:10px;
+}
+.tab{
+  padding:6px 13px;border-radius:5px;font-size:13.5px;
+  color:var(--ink-soft);transition:background .12s;
+}
+.tab:hover{background:var(--rule-soft)}
+.tab.on{background:var(--brand);color:#fff}
+.tab.on:hover{background:var(--brand)}
+.tab-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--risk);margin-right:6px;transform:translateY(-1px);
+}
+
+.body{display:flex;flex:1 1 auto;min-height:0}
+.left{
+  flex:1 1 auto;min-width:0;overflow-y:auto;
+  padding:22px 26px 70px;
+}
+.right{
+  flex:0 0 372px;min-width:0;display:flex;flex-direction:column;
+  background:var(--surface);border-left:1px solid var(--rule);
+}
+.stack{max-width:790px;display:flex;flex-direction:column;gap:20px}
+
+/* ---------- risk banner ---------- */
+.risk{
+  border:1px solid var(--risk-line);background:var(--risk-soft);
+  border-radius:7px;padding:15px 17px;
+}
+.risk-head{display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+.risk-title{font-weight:600;color:var(--risk);letter-spacing:-0.01em}
+.risk-kind{color:#A2687C;font-size:12.5px;margin-left:auto}
+.risk-body{color:var(--risk-text);font-size:14px;max-width:66ch}
+.risk-foot{display:flex;align-items:center;gap:14px;margin-top:11px}
+.risk-btn{
+  background:var(--risk);color:#fff;padding:6px 13px;
+  border-radius:5px;font-size:13px;font-weight:500;
+}
+.risk-btn:hover{background:var(--risk-deep)}
+.risk-dismiss{color:#94627A;font-size:13px;text-decoration:underline;text-underline-offset:2px}
+
+/* ---------- patient header ---------- */
+.phead{padding:2px 0 4px}
+.pname{
+  font-size:31px;font-weight:600;letter-spacing:-0.028em;
+  line-height:1.15;margin:0 0 7px;
+}
+.pmeta{color:var(--ink-soft);font-size:14px;margin-bottom:13px}
+.pmeta b{font-weight:500;color:var(--ink)}
+.psummary{
+  font-family:var(--serif);font-size:16.5px;line-height:1.62;
+  max-width:62ch;color:var(--ink-body);
+  border-left:2px solid var(--brand);padding-left:15px;
+}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--surface);border:1px solid var(--rule);
+  border-radius:7px;overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 17px;border-bottom:1px solid var(--rule-soft);
+}
+.card-title{font-weight:600;font-size:14.5px;letter-spacing:-0.012em}
+.card-note{color:var(--ink-faint);font-size:12.5px;margin-left:auto}
+
+/* ---------- follow-ups ---------- */
+.fu{display:flex;gap:14px;padding:14px 17px;border-bottom:1px solid var(--rule-soft)}
+.fu:last-child{border-bottom:none}
+.fu-kind{
+  flex:0 0 92px;font-size:12px;color:var(--ink-faint);
+  padding-top:2px;letter-spacing:0.01em;
+}
+.fu-main{flex:1 1 auto;min-width:0}
+.fu-text{font-size:14.5px;line-height:1.55;max-width:60ch}
+.fu-quote{
+  font-family:var(--serif);font-size:14.5px;line-height:1.6;
+  color:var(--ink-body);margin-top:6px;max-width:58ch;
+}
+.fu-cites{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.empty{padding:22px 17px;color:var(--ink-soft);font-size:14px}
+
+/* ---------- citation chips ---------- */
+.cite{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--serif);font-size:12.5px;
+  color:var(--brand);background:var(--brand-soft);
+  padding:3px 9px;border-radius:4px;
+  transition:background .12s;
+}
+.cite:hover{background:var(--brand-mid)}
+.cite::before{
+  content:"";width:5px;height:5px;border-radius:1px;
+  background:var(--brand);opacity:.5;flex:0 0 auto;
+}
+
+/* ---------- chart ---------- */
+.chart-wrap{padding:6px 12px 16px}
+.seg{display:flex;gap:2px;background:var(--rule-soft);padding:2px;border-radius:5px}
+.seg button{padding:4px 11px;border-radius:4px;font-size:12.5px;color:var(--ink-soft)}
+.seg button.on{background:var(--surface);color:var(--brand);font-weight:500;box-shadow:0 1px 2px rgba(21,23,26,.09)}
+.chart-foot{
+  display:flex;gap:20px;padding:0 17px 15px;
+  font-size:13px;color:var(--ink-soft);flex-wrap:wrap;
+}
+.chart-foot span b{font-weight:500;color:var(--ink)}
+
+/* ---------- plan ---------- */
+.goal{display:flex;gap:14px;align-items:baseline;padding:12px 17px;border-bottom:1px solid var(--rule-soft)}
+.goal:last-child{border-bottom:none}
+.goal-text{flex:1 1 auto;font-size:14.5px;max-width:54ch}
+.goal-stat{font-size:12.5px;flex:0 0 auto;padding:2px 8px;border-radius:4px}
+.goal-stat.ok{background:var(--teal-soft);color:var(--teal)}
+.goal-stat.stale{background:var(--attn-soft);color:var(--attn)}
+
+/* ---------- chat ---------- */
+.chat-head{padding:13px 18px;border-bottom:1px solid var(--rule);flex:0 0 auto}
+.chat-title{font-weight:600;font-size:14.5px;letter-spacing:-0.012em}
+.chat-sub{color:var(--ink-faint);font-size:12.5px;margin-top:2px}
+.chat-log{flex:1 1 auto;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px}
+.chat-intro{color:var(--ink-soft);font-size:13.5px;line-height:1.55}
+.sugs{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.sug{
+  text-align:left;font-family:var(--serif);font-size:14px;line-height:1.45;
+  border:1px solid var(--rule);border-radius:6px;padding:9px 12px;
+  color:var(--ink-body);transition:border-color .12s,background .12s;
+}
+.sug:hover{border-color:var(--brand-mid);background:var(--paper)}
+.msg-you{align-self:flex-end;max-width:88%}
+.msg-you-b{
+  background:var(--brand);color:#fff;padding:8px 13px;
+  border-radius:13px 13px 3px 13px;font-size:14px;line-height:1.5;
+}
+.msg-ai{max-width:100%}
+.msg-ai-b{font-size:14px;line-height:1.6;color:var(--ink-body)}
+.msg-cites{display:flex;flex-direction:column;gap:6px;margin-top:11px}
+.cite-row{
+  display:flex;gap:9px;align-items:flex-start;text-align:left;
+  border-left:2px solid var(--brand-soft);padding:2px 0 2px 11px;
+  transition:border-color .12s;
+}
+.cite-row:hover{border-left-color:var(--brand)}
+.cite-row-date{flex:0 0 auto;font-size:12px;color:var(--ink-faint);padding-top:2px;width:74px}
+.cite-row-txt{font-family:var(--serif);font-size:13.5px;line-height:1.5;color:var(--ink-body)}
+.thinking{color:var(--ink-faint);font-size:13.5px;font-style:italic}
+.chat-form{
+  flex:0 0 auto;padding:13px 18px 18px;border-top:1px solid var(--rule);
+  display:flex;gap:8px;
+}
+.chat-input{
+  flex:1 1 auto;min-width:0;border:1px solid var(--rule);border-radius:6px;
+  padding:9px 12px;font-size:14px;font-family:var(--sans);background:var(--paper);
+}
+.chat-input:focus{outline:2px solid var(--brand);outline-offset:-1px;background:var(--surface)}
+.chat-send{
+  background:var(--brand);color:#fff;padding:0 15px;border-radius:6px;
+  font-size:13.5px;font-weight:500;
+}
+.chat-send:hover{background:var(--brand-deep)}
+.chat-send:disabled{background:#BDB7D0;cursor:default}
+
+/* ---------- drawer ---------- */
+.scrim{
+  position:fixed;inset:0;background:rgba(21,23,26,.38);
+  animation:fade .16s ease-out;z-index:40;
+}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:540px;max-width:92vw;z-index:41;
+  background:var(--surface);border-left:1px solid var(--rule);
+  display:flex;flex-direction:column;
+  box-shadow:-14px 0 40px rgba(21,23,26,.16);
+  animation:slide .2s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slide{from{transform:translateX(26px);opacity:.4}to{transform:none;opacity:1}}
+.dr-head{padding:17px 22px;border-bottom:1px solid var(--rule);flex:0 0 auto;display:flex;align-items:flex-start;gap:14px}
+.dr-title{font-weight:600;font-size:15px;letter-spacing:-0.012em}
+.dr-meta{color:var(--ink-faint);font-size:12.5px;margin-top:3px}
+.dr-close{font-size:20px;line-height:1;color:var(--ink-faint);padding:2px 6px;margin-left:auto}
+.dr-close:hover{color:var(--ink)}
+.dr-body{flex:1 1 auto;overflow-y:auto;padding:20px 22px 40px}
+.turn{display:flex;gap:14px;margin-bottom:15px}
+.turn-who{flex:0 0 62px;font-size:12px;color:var(--ink-faint);padding-top:3px}
+.turn-txt{
+  font-family:var(--serif);font-size:15px;line-height:1.66;
+  color:var(--ink-body);max-width:50ch;
+}
+.turn.hit .turn-who{color:var(--brand);font-weight:500}
+.turn.hit .turn-txt{background:var(--brand-soft);border-radius:4px;padding:3px 8px;margin:-3px -8px}
+.dr-foot{
+  flex:0 0 auto;padding:13px 22px;border-top:1px solid var(--rule);
+  color:var(--ink-faint);font-size:12.5px;
+}
+.dr-rel{
+  flex:0 0 auto;padding:13px 22px;border-top:1px solid var(--rule-soft);
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+}
+.dr-rel-label{color:var(--ink-faint);font-size:12.5px;margin-right:2px}
+.dr-back{
+  font-size:13px;color:var(--brand);padding:2px 7px 2px 0;
+  margin-bottom:6px;display:inline-flex;align-items:center;gap:5px;
+}
+.dr-back:hover{text-decoration:underline;text-underline-offset:2px}
+.goal-main{flex:1 1 auto;min-width:0}
+.goal-cites{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.card-note-btn{
+  margin-left:auto;font-family:var(--serif);font-size:12.5px;
+  color:var(--brand);background:var(--brand-soft);
+  padding:3px 9px;border-radius:4px;transition:background .12s;
+}
+.card-note-btn:hover{background:var(--brand-mid)}
+.chart-hint{
+  padding:0 17px 4px;font-size:12.5px;color:var(--ink-faint);
+}
+.srv-row{display:flex;gap:14px;margin-bottom:9px;align-items:baseline}
+.srv-k{flex:0 0 62px;font-size:12px;color:var(--ink-faint)}
+.srv-v{font-family:var(--serif);font-size:14.5px;line-height:1.5;color:var(--ink-body);flex:1 1 auto}
+.srv-n{flex:0 0 26px;text-align:right;font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.srv-row.hit .srv-k{color:var(--brand);font-weight:500}
+.srv-row.hit .srv-v,.srv-row.hit .srv-n{background:var(--brand-soft);border-radius:4px;padding:3px 8px;margin:-3px 0}
+.srv-total{
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--rule);
+  font-size:14.5px;
+}
+.srv-total b{font-weight:600}
+.srv-delta{color:var(--ink-soft);font-size:13.5px;margin-top:4px}
+
+@media (max-width:1000px){
+  .body{flex-direction:column;overflow-y:auto}
+  .left{overflow:visible;padding:18px}
+  .right{flex:0 0 auto;border-left:none;border-top:1px solid var(--rule);height:560px}
+  .switcher-label{display:none}
+  .topbar{gap:12px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState, useRef, useEffect} = React;
+
+/* ============================ DATA ============================ */
+
+const DATES = ["Mar 4","Mar 18","Apr 1","Apr 15","Apr 29","May 13","May 27",
+               "Jun 10","Jun 24","Jul 8","Jul 22","Aug 5","Aug 19","Sep 2"];
+
+const BANDS = {
+  phq9:{max:27,label:"PHQ-9",bands:[
+    {to:4,name:"minimal",fill:"#F4F3F9"},{to:9,name:"mild",fill:"#EFEDF7"},
+    {to:14,name:"moderate",fill:"#F7F1E3"},{to:19,name:"mod. severe",fill:"#FAEBEF"},
+    {to:27,name:"severe",fill:"#F7DEE5"}]},
+  gad7:{max:21,label:"GAD-7",bands:[
+    {to:4,name:"minimal",fill:"#F4F3F9"},{to:9,name:"mild",fill:"#EFEDF7"},
+    {to:14,name:"moderate",fill:"#F7F1E3"},{to:21,name:"severe",fill:"#F7DEE5"}]}
+};
+
+const PATIENTS = {
+  gary:{
+    id:"gary", name:"Gary Mendez", tab:"G. Mendez", alert:true,
+    meta:"47 · he/him · Session 14 · Next: today, 2:00 PM",
+    dx:"F33.1 Major depressive disorder, recurrent, moderate",
+    summary:"Fourteen sessions since March. PHQ-9 has climbed steadily since June and crossed into the severe range on the most recent survey. He returned to the topic of drinking in the last two sessions after not raising it since May.",
+    risk:{
+      title:"PHQ-9 item 9 changed from 0 to 1",
+      kind:"Deterministic · survey scoring",
+      body:"Gary reported thoughts of being better off dead or of hurting himself on several days, for the first time since intake. No safety plan is on file. Total score also crossed from moderately severe into severe.",
+      cite:{t:"srv",pid:"gary",inst:"phq9",i:13}
+    },
+    scores:{
+      phq9:[12,11,13,12,14,13,15,16,15,17,18,19,19,21],
+      gad7:[9,10,9,11,10,12,11,13,12,14,15,14,16,17]
+    },
+    followUps:[
+      {kind:"Open thread", text:"He said he would call his sister after the anniversary of the separation. It hasn't come up in the two sessions since.",
+       quote:"\u201cI keep meaning to call Denise. I will. Probably after the sixteenth.\u201d", cites:[{id:"g-s12",label:"Session 12 \u00b7 Aug 5"}]},
+      {kind:"Homework", text:"Thought record for evening rumination, assigned in session 13. Not reviewed in session 14.",
+       quote:null, cites:[{id:"g-s13",label:"Session 13 \u00b7 Aug 19"}]},
+      {kind:"Life event", text:"Divorce finalized July 22. He mentioned it once and moved on; you noted wanting to return to it.",
+       quote:null, cites:[{id:"g-s11",label:"Session 11 \u00b7 Jul 22"}]},
+      {kind:"Survey", text:"PHQ-9 up 8 points since May 27. Sleep and concentration items account for most of the change.",
+       quote:null, cites:[]}
+    ],
+    goals:[
+      {text:"Reduce evening rumination using thought records", stat:"stale", note:"Assigned, never reviewed",
+       cites:[{id:"g-s13",label:"Assigned \u00b7 Session 13"}]},
+      {text:"Re-establish contact with two people from his pre-marriage social circle", stat:"stale", note:"No activity in 5 sessions",
+       cites:[{id:"g-s09",label:"Last worked \u00b7 Session 9"}]},
+      {text:"Maintain sleep schedule with consistent wake time", stat:"ok", note:"Holding",
+       cites:[{id:"g-sleep",label:"Session 13 \u00b7 Aug 19"}]}
+    ],
+    planDoc:"g-plan",
+    plan:"Plan v2 \u00b7 89 days old",
+    suggested:[
+      "Did Gary used to drink before his divorce?",
+      "How has he described his sleep over the last two months?",
+      "What have we tried for the evening rumination?",
+      "What happened in session 12?"
+    ]
+  },
+  priya:{
+    id:"priya", name:"Priya Raman", tab:"P. Raman", alert:false,
+    meta:"29 · she/her · Session 14 · Next: Thu, 10:00 AM",
+    dx:"F41.1 Generalized anxiety disorder",
+    summary:"Steady improvement across both instruments since March. PHQ-9 moved from moderately severe to minimal and has held there for three administrations. Exposure work around presentations has generalized to other work situations.",
+    risk:null,
+    scores:{
+      phq9:[18,17,15,14,12,11,9,8,7,6,5,5,4,4],
+      gad7:[15,14,13,11,10,9,8,7,6,5,5,4,4,3]
+    },
+    followUps:[
+      {kind:"Homework", text:"Two unrehearsed team stand-ups before the next session. She reported doing both.",
+       quote:"\u201cI didn't script it. I just talked. It was fine, which was annoying.\u201d", cites:[{id:"p-s14",label:"Session 14 \u00b7 Sep 2"}]},
+      {kind:"Open thread", text:"She raised whether to reduce session frequency and you said you'd revisit it.",
+       quote:"\u201cDo we still need to do this every week? I'm not saying we don't.\u201d", cites:[{id:"p-s14b",label:"Session 14 \u00b7 Sep 2"}]},
+      {kind:"Survey", text:"Both instruments in the minimal range for three consecutive administrations. Meets the plan's own criterion for stepping down.",
+       quote:null, cites:[]}
+    ],
+    goals:[
+      {text:"Present at a team meeting without a written script", stat:"ok", note:"Achieved",
+       cites:[{id:"p-s14",label:"Session 14 \u00b7 Sep 2"}]},
+      {text:"Reduce reassurance-seeking texts to partner to under 3/day", stat:"ok", note:"Worked on session 13",
+       cites:[{id:"p-s13",label:"Session 13 \u00b7 Aug 19"}]},
+      {text:"Build a maintenance plan for after discharge", stat:"stale", note:"Not yet started",
+       cites:[{id:"p-plan",label:"As written \u00b7 Plan v3"}]}
+    ],
+    planDoc:"p-plan",
+    plan:"Plan v3 \u00b7 33 days old",
+    suggested:[
+      "What did she say about reducing session frequency?",
+      "How much has her GAD-7 changed since intake?",
+      "What exposures have we done so far?",
+      "Is she ready to step down to biweekly?"
+    ]
+  },
+  dana:{
+    id:"dana", name:"Dana Whitfield", tab:"D. Whitfield", alert:false,
+    meta:"34 · they/them · Session 12 · Next: Fri, 4:00 PM",
+    dx:"F33.0 Major depressive disorder, recurrent, mild",
+    summary:"No reliable change on either instrument in nine weeks. Two consecutive no-shows in August, with a 24-day gap between sessions. Session content has drifted toward week-to-week logistics and away from the documented goals.",
+    risk:null,
+    scores:{
+      phq9:[14,13,14,13,14,13,14,13,14,13,14,14,13,14],
+      gad7:[11,10,11,11,10,11,10,11,11,10,11,10,11,11]
+    },
+    followUps:[
+      {kind:"Engagement", text:"Two no-shows (Aug 7, Aug 21) and a 24-day gap. Longest since intake.",
+       quote:null, cites:[]},
+      {kind:"Survey", text:"Nine weeks with no change exceeding the reliable change threshold on either instrument.",
+       quote:null, cites:[]},
+      {kind:"Open thread", text:"They mentioned a possible move out of state and you said you'd come back to what it would mean for care.",
+       quote:"\u201cIt's not decided. My brother keeps sending listings.\u201d", cites:[{id:"d-s12",label:"Session 12 \u00b7 Sep 2"}]}
+    ],
+    goals:[
+      {text:"Behavioral activation: two scheduled social contacts per week", stat:"stale", note:"No activity in 4 sessions",
+       cites:[{id:"d-s08",label:"Last worked \u00b7 Session 8"}]},
+      {text:"Return to weekly swimming", stat:"stale", note:"No activity in 6 sessions",
+       cites:[{id:"d-s06",label:"Last worked \u00b7 Session 6"}]},
+      {text:"Identify triggers for weekend withdrawal", stat:"stale", note:"No activity in 4 sessions",
+       cites:[{id:"d-s08",label:"Last worked \u00b7 Session 8"}]}
+    ],
+    planDoc:"d-plan",
+    plan:"Plan v1 \u00b7 187 days old",
+    suggested:[
+      "What have we actually been working on lately?",
+      "When did the no-shows start?",
+      "Has anything changed since the plan was written?",
+      "What did they say about moving?"
+    ]
+  }
+};
+
+/* Session documents. `pid` + `at` (index into DATES) let the app link a
+   transcript to the survey administered the same fortnight, and back again. */
+const TRANSCRIPTS = {
+  "g-s08":{pid:"gary",at:7,title:"Session 8",date:"Jun 10, 2026",meta:"Telehealth video \u00b7 50 min",
+    turns:[
+      {who:"Therapist",txt:"You said 'back then' \u2014 what was that period like?"},
+      {who:"Gary",txt:"Before everything came apart? I drank more than I should have. Not a bottle-in-the-desk situation. Four, five beers most nights for about two years.",hit:true},
+      {who:"Therapist",txt:"And that changed when?"},
+      {who:"Gary",txt:"When she left. Which is backwards, I know. Everyone assumes it goes the other way. I just stopped wanting it."}
+    ]},
+  "g-s09":{pid:"gary",at:8,title:"Session 9",date:"Jun 24, 2026",meta:"Telehealth video \u00b7 49 min",
+    turns:[
+      {who:"Therapist",txt:"Last time we listed a few people you'd lost touch with. Did you reach out to anyone?"},
+      {who:"Gary",txt:"I texted Marcus. He wrote back the same day and asked about getting a beer. I haven't answered yet.",hit:true},
+      {who:"Therapist",txt:"What's in the way of answering?"},
+      {who:"Gary",txt:"Nothing. That's the embarrassing part. It's been eleven days and there's no reason."},
+      {who:"Therapist",txt:"Let's keep this one on the list. Two people, we said."}
+    ]},
+  "g-s11":{pid:"gary",at:10,title:"Session 11",date:"Jul 22, 2026",meta:"Telehealth video \u00b7 51 min",
+    turns:[
+      {who:"Gary",txt:"It's done, by the way. Signed on Tuesday.",hit:true},
+      {who:"Therapist",txt:"The divorce."},
+      {who:"Gary",txt:"Yeah. Anyway \u2014 the thing at work I wanted to tell you about."},
+      {who:"Therapist",txt:"We can go there. I'd like to come back to Tuesday at some point though."},
+      {who:"Gary",txt:"Sure."}
+    ]},
+  "g-s12":{pid:"gary",at:11,title:"Session 12",date:"Aug 5, 2026",meta:"Telehealth video \u00b7 53 min",
+    turns:[
+      {who:"Therapist",txt:"You mentioned Denise a couple of times last month. Where has that landed?"},
+      {who:"Gary",txt:"I keep meaning to call Denise. I will. Probably after the sixteenth.",hit:true},
+      {who:"Therapist",txt:"What's the sixteenth?"},
+      {who:"Gary",txt:"That's when we separated. Two years. I don't know why I put things on the other side of it, but I do."},
+      {who:"Therapist",txt:"That makes a kind of sense. What do you imagine saying to her?"},
+      {who:"Gary",txt:"That I've been bad at this. She'll say she knows. Then we'll talk about her kids for an hour and I'll feel better and not call again for six months."}
+    ]},
+  "g-s13":{pid:"gary",at:12,title:"Session 13",date:"Aug 19, 2026",meta:"Telehealth video \u00b7 48 min",
+    turns:[
+      {who:"Therapist",txt:"How's sleep been?"},
+      {who:"Gary",txt:"Four hours, maybe five. I fall asleep fine and then I'm up at two and that's it."},
+      {who:"Therapist",txt:"What happens at two?"},
+      {who:"Gary",txt:"Nothing happens. That's the problem. There's just a lot of room in it."},
+      {who:"Therapist",txt:"I want to try something for that. A thought record \u2014 when the spiral starts, you write down what set it off and what you told yourself.",hit:true},
+      {who:"Gary",txt:"Write it down where?"},
+      {who:"Therapist",txt:"Wherever's easiest. Phone is fine. Three or four this week, not every night."},
+      {who:"Gary",txt:"Okay. I'm not promising it'll be legible."},
+      {who:"Therapist",txt:"It doesn't have to be. It has to exist."}
+    ]},
+  "g-sleep":{pid:"gary",at:12,title:"Session 13",date:"Aug 19, 2026",meta:"Telehealth video \u00b7 48 min",
+    turns:[
+      {who:"Therapist",txt:"How's sleep been?"},
+      {who:"Gary",txt:"Four hours, maybe five. I fall asleep fine and then I'm up at two and that's it.",hit:true},
+      {who:"Therapist",txt:"What happens at two?"},
+      {who:"Gary",txt:"Nothing happens. That's the problem. There's just a lot of room in it."},
+      {who:"Therapist",txt:"Is the wake time holding? Same alarm every morning?"},
+      {who:"Gary",txt:"Six fifteen. That part I've actually kept."}
+    ]},
+  "g-s14":{pid:"gary",at:13,title:"Session 14",date:"Sep 2, 2026",meta:"Telehealth video \u00b7 47 min",
+    turns:[
+      {who:"Therapist",txt:"How have the evenings been?"},
+      {who:"Gary",txt:"I've had a couple of drinks a few nights. Not like it was. But I noticed I was doing it, which is new.",hit:true},
+      {who:"Therapist",txt:"Noticed it how?"},
+      {who:"Gary",txt:"Like watching myself from across the room. I don't sleep either way, so it doesn't feel like it costs anything."}
+    ]},
+  "g-plan":{pid:"gary",at:7,title:"Treatment plan v2",date:"Jun 10, 2026",meta:"Authored by you \u00b7 supersedes v1 (Mar 4)",
+    turns:[
+      {who:"Diagnosis",txt:"F33.1 Major depressive disorder, recurrent, moderate"},
+      {who:"Goal 1",txt:"Reduce evening rumination using thought records. Criterion: three recorded entries per week for four consecutive weeks."},
+      {who:"Goal 2",txt:"Re-establish contact with two people from his pre-marriage social circle by September."},
+      {who:"Goal 3",txt:"Maintain a consistent wake time of 6:15 a.m. on weekdays."},
+      {who:"Review",txt:"Plan due for review after 12 sessions or on any change in risk status. Neither review has been recorded.",hit:true}
+    ]},
+  "p-s13":{pid:"priya",at:12,title:"Session 13",date:"Aug 19, 2026",meta:"Telehealth video \u00b7 45 min",
+    turns:[
+      {who:"Therapist",txt:"How many check-in texts last week?"},
+      {who:"Priya",txt:"Two on the bad day. Otherwise one, maybe none. I counted, which felt ridiculous.",hit:true},
+      {who:"Therapist",txt:"Ridiculous but useful?"},
+      {who:"Priya",txt:"Useful. When I go to send the second one now I can hear you asking about it."}
+    ]},
+  "p-s14":{pid:"priya",at:13,title:"Session 14",date:"Sep 2, 2026",meta:"Telehealth video \u00b7 46 min",
+    turns:[
+      {who:"Therapist",txt:"You did both stand-ups?"},
+      {who:"Priya",txt:"I didn't script it. I just talked. It was fine, which was annoying.",hit:true},
+      {who:"Therapist",txt:"Annoying?"},
+      {who:"Priya",txt:"Because I spent four years not doing it and it turns out it takes ninety seconds."}
+    ]},
+  "p-s14b":{pid:"priya",at:13,title:"Session 14",date:"Sep 2, 2026",meta:"Telehealth video \u00b7 46 min",
+    turns:[
+      {who:"Priya",txt:"Do we still need to do this every week? I'm not saying we don't.",hit:true},
+      {who:"Therapist",txt:"It's a fair question. What's behind it?"},
+      {who:"Priya",txt:"I keep showing up with nothing bad to report and it feels like I'm taking a slot."},
+      {who:"Therapist",txt:"Let me look at where your numbers have been and we'll talk about it properly next time."}
+    ]},
+  "p-plan":{pid:"priya",at:11,title:"Treatment plan v3",date:"Aug 5, 2026",meta:"Authored by you \u00b7 supersedes v2 (May 13)",
+    turns:[
+      {who:"Diagnosis",txt:"F41.1 Generalized anxiety disorder"},
+      {who:"Goal 1",txt:"Present at a team meeting without a written script. Marked achieved Sep 2."},
+      {who:"Goal 2",txt:"Reduce reassurance-seeking texts to partner to fewer than three per day."},
+      {who:"Goal 3",txt:"Build a maintenance plan for after discharge. Not yet started.",hit:true},
+      {who:"Step-down",txt:"Criterion for moving to biweekly: both instruments in the minimal range across three consecutive administrations."}
+    ]},
+  "d-s06":{pid:"dana",at:4,title:"Session 6",date:"Apr 29, 2026",meta:"Telehealth video \u00b7 47 min",
+    turns:[
+      {who:"Therapist",txt:"You mentioned the pool pass last month."},
+      {who:"Dana",txt:"I renewed it. I've been twice since. Both times on a Tuesday, both times because someone else was going.",hit:true},
+      {who:"Therapist",txt:"Does that count differently to you?"},
+      {who:"Dana",txt:"It counts less. I know that's not how it works."}
+    ]},
+  "d-s08":{pid:"dana",at:6,title:"Session 8",date:"May 27, 2026",meta:"Telehealth video \u00b7 44 min",
+    turns:[
+      {who:"Therapist",txt:"Two contacts a week was the plan. How did the weekend go?"},
+      {who:"Dana",txt:"I saw nobody Saturday. Sunday I went to my brother's for dinner, so that's one.",hit:true},
+      {who:"Therapist",txt:"What happened Saturday?"},
+      {who:"Dana",txt:"Nothing dramatic. I woke up and the day was already too long, and it was easier to let it stay empty."}
+    ]},
+  "d-s12":{pid:"dana",at:13,title:"Session 12",date:"Sep 2, 2026",meta:"Telehealth video \u00b7 44 min",
+    turns:[
+      {who:"Dana",txt:"It's not decided. My brother keeps sending listings.",hit:true},
+      {who:"Therapist",txt:"How do you feel when they arrive?"},
+      {who:"Dana",txt:"Tired, mostly. It's another thing to have an opinion about."},
+      {who:"Therapist",txt:"We should talk about what a move would mean for us \u2014 licensing, whether I could keep seeing you. Let's put it on the list for next time."}
+    ]},
+  "d-plan":{pid:"dana",at:0,title:"Treatment plan v1",date:"Mar 4, 2026",meta:"Authored by you \u00b7 never revised \u00b7 187 days old",
+    turns:[
+      {who:"Diagnosis",txt:"F33.0 Major depressive disorder, recurrent, mild"},
+      {who:"Goal 1",txt:"Behavioral activation: two scheduled social contacts per week."},
+      {who:"Goal 2",txt:"Return to weekly swimming."},
+      {who:"Goal 3",txt:"Identify triggers for weekend withdrawal."},
+      {who:"Review",txt:"Plan due for review after 12 sessions. Session 12 was Sep 2 and no revision has been recorded.",hit:true}
+    ]}
+};
+
+const ANSWERS = {
+  gary:[
+    {kw:["drink","drank","alcohol","drinking"],
+     txt:"Yes. In session 8 he described drinking four to five beers most nights for roughly two years before the separation, and said it stopped when his wife left rather than escalating afterward. It hadn't come up again until session 14, when he reported drinking on a few evenings and noted he was aware of doing it.",
+     cites:[{id:"g-s08",date:"Jun 10",txt:"Four, five beers most nights for about two years, before everything came apart"},
+            {id:"g-s14",date:"Sep 2",txt:"A couple of drinks a few nights \u2014 not like it was, but he noticed himself doing it"}]},
+    {kw:["sleep","sleeping","insomnia","awake"],
+     txt:"Sleep has been a consistent theme since June and worsened over the last month. He reports four to five hours with a reliable 2 a.m. waking and no return to sleep. The PHQ-9 sleep item has been at 3 for the last three administrations, and it's one of the two items driving most of the total score increase.",
+     cites:[{id:"g-sleep",date:"Aug 19",txt:"Four hours, maybe five \u2014 falls asleep fine, up at two and that's it"}]},
+    {kw:["rumination","ruminat","evening","thought record","tried"],
+     txt:"Two things so far. A scheduled worry window in June, which he tried for about a week and abandoned. Then a thought record for evening rumination assigned in session 13 \u2014 that one was never reviewed, so there's no record of whether he attempted it.",
+     cites:[{id:"g-s13",date:"Aug 19",txt:"Thought record assigned for evening rumination \u2014 three or four times that week"}]},
+    {kw:["session 12","sister","denise","call"],
+     txt:"Session 12 was mostly about his sister Denise. He said he intended to call her after the sixteenth, the anniversary of the separation, and described a pattern of postponing contact and then losing touch again for months. It hasn't come up since.",
+     cites:[{id:"g-s12",date:"Aug 5",txt:"He intended to call Denise after the sixteenth \u2014 the separation anniversary"}]},
+    {kw:["divorce","separated","separation","finalized"],
+     txt:"The divorce was finalized July 22 and he raised it once, briefly, at the start of session 11 before changing the subject. You noted at the time that you wanted to return to it. It hasn't been discussed in the three sessions since.",
+     cites:[{id:"g-s11",date:"Jul 22",txt:"Mentioned the signing at the top of session, then moved to another topic"}]},
+    {kw:["risk","item 9","safety","suicid"],
+     txt:"The most recent PHQ-9, taken September 2, has item 9 at 1 \u2014 thoughts of being better off dead on several days. That's the first nonzero value since intake. Total moved from 19 to 21, crossing into the severe range. There is no safety plan document on file for him.",
+     cites:[{node:{t:"srv",pid:"gary",inst:"phq9",i:13},date:"Sep 2",txt:"Item 9: several days (1). Previous administrations: 0."}]}
+  ],
+  priya:[
+    {kw:["frequency","biweekly","step down","reduce","weekly","ready"],
+     txt:"She raised it herself in session 14, saying she keeps arriving with nothing to report. Her numbers support the conversation: both instruments have been in the minimal range for three consecutive administrations, and her current treatment plan names exactly that as the criterion for stepping down to biweekly.",
+     cites:[{id:"p-s14b",date:"Sep 2",txt:"She asked whether weekly sessions are still needed, unprompted"}]},
+    {kw:["gad","anxiety","changed","intake","progress","score"],
+     txt:"GAD-7 has gone from 15 at intake to 3, a 12-point drop well past the reliable change threshold. PHQ-9 moved from 18 to 4 over the same period. The steepest decline was between April and June, coinciding with the start of the presentation exposures.",
+     cites:[]},
+    {kw:["exposure","presentation","homework","done","stand"],
+     txt:"Graded exposures around speaking at work: reading from a script to one colleague, then to the team, then two unrehearsed stand-ups assigned before session 14. She completed both and described it as unremarkable, which is itself the point.",
+     cites:[{id:"p-s14",date:"Sep 2",txt:"Completed both stand-ups without a script; described it as uneventful"}]}
+  ],
+  dana:[
+    {kw:["working","lately","drift","content","actually"],
+     txt:"The last four sessions have been largely logistical \u2014 scheduling, the possible move, and week-to-week updates. None of the three documented plan goals has a linked intervention or progress note in that window. The plan itself was written at intake and is 187 days old.",
+     cites:[{id:"d-s12",date:"Sep 2",txt:"Session content centred on the potential relocation and scheduling"}]},
+    {kw:["no-show","noshow","no show","gap","miss","engagement","start"],
+     txt:"Two no-shows, August 7 and August 21, with a 24-day gap between completed sessions \u2014 the longest since intake. Before August, attendance was unbroken for eleven weeks.",
+     cites:[]},
+    {kw:["plan","changed","written","stale"],
+     txt:"The plan is unchanged since March 4. Two of its three goals \u2014 the swimming and the twice-weekly social contacts \u2014 have had no session activity in four and six sessions respectively. Meanwhile the move has become a recurring topic that appears nowhere in the plan.",
+     cites:[{id:"d-s12",date:"Sep 2",txt:"Relocation raised again; licensing implications flagged for next session"}]},
+    {kw:["mov","relocat","listing","brother","state"],
+     txt:"They've mentioned a possible out-of-state move in three of the last four sessions, always briefly and never as the main topic. In session 12 you flagged that it would raise licensing questions for continuing care and said you'd return to it.",
+     cites:[{id:"d-s12",date:"Sep 2",txt:"Brother is sending property listings; no decision made"}]}
+  ]
+};
+
+/* ============================ HELPERS ============================ */
+
+const PHQ9_ITEMS = [
+  "Little interest or pleasure in doing things",
+  "Feeling down, depressed or hopeless",
+  "Trouble falling asleep, staying asleep, or sleeping too much",
+  "Feeling tired or having little energy",
+  "Poor appetite or overeating",
+  "Feeling bad about yourself, or that you have let people down",
+  "Trouble concentrating on things",
+  "Moving or speaking slowly, or being restless and fidgety",
+  "Thoughts that you would be better off dead, or of hurting yourself"
+];
+const GAD7_ITEMS = [
+  "Feeling nervous, anxious or on edge",
+  "Not being able to stop or control worrying",
+  "Worrying too much about different things",
+  "Trouble relaxing",
+  "Being so restless that it's hard to sit still",
+  "Becoming easily annoyed or irritable",
+  "Feeling afraid as if something awful might happen"
+];
+const RESP = ["Not at all","Several days","More than half the days","Nearly every day"];
+
+/* Per-client item weighting. Item responses are reconstructed from the total so
+   every point on the chart opens a complete, internally consistent administration. */
+const PROFILE = {
+  gary: {phq9:[1.1,1.2,1.7,1.3,0.7,1.1,1.6,0.6], gad7:[1.2,1.4,1.3,1.1,0.9,1.0,1.1]},
+  priya:{phq9:[1.0,0.9,1.2,1.0,0.7,1.3,1.1,0.6], gad7:[1.4,1.5,1.4,1.2,1.0,0.8,1.3]},
+  dana: {phq9:[1.4,1.2,1.0,1.5,0.9,1.1,0.9,0.7], gad7:[1.0,1.1,1.0,1.2,0.9,1.1,0.9]}
+};
+
+function distribute(total, weights, maxPer){
+  const n = weights.length, sum = weights.reduce((a,b)=>a+b,0);
+  const vals = weights.map(w => Math.max(0, Math.min(maxPer, Math.round(total * w / sum))));
+  let diff = total - vals.reduce((a,b)=>a+b,0), guard = 0;
+  while (diff !== 0 && guard < 400){
+    for (let k=0; k<n && diff!==0; k++){
+      const idx = diff > 0 ? k : n-1-k;
+      if (diff > 0 && vals[idx] < maxPer){ vals[idx]++; diff--; }
+      else if (diff < 0 && vals[idx] > 0){ vals[idx]--; diff++; }
+    }
+    guard++;
+  }
+  return vals;
+}
+
+function band(inst, v){
+  if (inst === "phq9")
+    return v<=4?"minimal":v<=9?"mild":v<=14?"moderate":v<=19?"moderately severe":"severe";
+  return v<=4?"minimal":v<=9?"mild":v<=14?"moderate":"severe";
+}
+
+/* item 9 stays 0 until the September administration for Gary — the one
+   deterministic flag in the demo, and the reason item-level storage matters */
+function item9For(pid, i){ return (pid === "gary" && i === 13) ? 1 : 0; }
+
+function surveyDoc(pid, inst, i){
+  const pt = PATIENTS[pid];
+  const total = pt.scores[inst][i];
+  const prev = i > 0 ? pt.scores[inst][i-1] : null;
+  const max = BANDS[inst].max;
+  const items = inst === "phq9" ? PHQ9_ITEMS : GAD7_ITEMS;
+  let vals;
+  if (inst === "phq9"){
+    const i9 = item9For(pid, i);
+    vals = distribute(total - i9, PROFILE[pid].phq9, 3).concat([i9]);
+  } else {
+    vals = distribute(total, PROFILE[pid].gad7, 3);
+  }
+  const rows = items.map((label,k) => ({
+    k:`Item ${k+1}`, label, v:vals[k],
+    hit: inst === "phq9" && k === 8 && vals[k] > 0
+  }));
+  /* nearest session document on file, for the jump from survey to transcript */
+  let near = null, bestGap = 99;
+  for (const [id,d] of Object.entries(TRANSCRIPTS)){
+    if (d.pid !== pid || d.title.indexOf("Treatment plan") === 0) continue;
+    const gap = Math.abs(d.at - i);
+    if (gap < bestGap){ bestGap = gap; near = {id, label:`${d.title} \u00b7 ${d.date.replace(", 2026","")}`, exact:gap===0}; }
+  }
+  const related = [];
+  if (near) related.push({node:{t:"doc",id:near.id},
+    label:(near.exact ? "Session that fortnight: " : "Nearest session on file: ") + near.label});
+  if (pt.planDoc) related.push({node:{t:"doc",id:pt.planDoc}, label:"Treatment plan in effect"});
+  return {
+    kind:"survey",
+    title:`${BANDS[inst].label} administration`,
+    date:`${DATES[i]}, 2026`,
+    meta:"Client-completed \u00b7 delivered by SMS",
+    rows, total, prev, max, inst, related
+  };
+}
+
+function resolveDoc(node){
+  if (!node) return null;
+  if (node.t === "srv") return surveyDoc(node.pid, node.inst, node.i);
+  const d = TRANSCRIPTS[node.id];
+  if (!d) return null;
+  const related = [];
+  if (d.pid && typeof d.at === "number"){
+    related.push({node:{t:"srv",pid:d.pid,inst:"phq9",i:d.at},
+                  label:`PHQ-9 that fortnight \u00b7 ${DATES[d.at]}`});
+    related.push({node:{t:"srv",pid:d.pid,inst:"gad7",i:d.at},
+                  label:`GAD-7 that fortnight \u00b7 ${DATES[d.at]}`});
+  }
+  return {kind:"doc", title:d.title, date:d.date, meta:d.meta, turns:d.turns, related};
+}
+
+function answerFor(pid, q){
+  const s = q.toLowerCase();
+  const pool = ANSWERS[pid] || [];
+  for (const a of pool) if (a.kw.some(k => s.includes(k))) return a;
+  return {txt:"Nothing in this client's record matches that. Search covers session transcripts, progress notes, treatment plans and survey responses for this client only. Try naming a topic, a session, or a date range.", cites:[]};
+}
+
+function reliableChange(series, threshold){
+  const first = series[0], last = series[series.length-1];
+  const d = first - last;
+  return {delta:d, reliable:Math.abs(d) >= threshold, direction:d > 0 ? "down" : d < 0 ? "up" : "flat"};
+}
+
+function plateauWeeks(series){
+  let i = series.length - 1, ref = series[i], n = 0;
+  while (i > 0 && Math.abs(series[i-1] - ref) < 5){ n++; i--; }
+  return n * 2;
+}
+
+/* ============================ CHART ============================ */
+
+function Chart({series, kind, pid, onPick}){
+  const [hover, setHover] = useState(null);
+  const cfg = BANDS[kind];
+  const W = 720, H = 236, L = 34, R = 16, T = 12, B = 30;
+  const iw = W - L - R, ih = H - T - B;
+  const x = i => L + (i / (DATES.length - 1)) * iw;
+  const y = v => T + ih - (v / cfg.max) * ih;
+  const path = series.map((v,i) => `${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+
+  let prevTop = 0;
+  const bandRects = cfg.bands.map(b => {
+    const r = {y0:y(b.to), y1:y(prevTop), name:b.name, fill:b.fill};
+    prevTop = b.to; return r;
+  });
+
+  return (
+    <div className="chart-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",height:"auto",display:"block"}}
+           role="img" aria-label={`${cfg.label} scores from March to September`}>
+        {bandRects.map((b,i) => (
+          <g key={i}>
+            <rect x={L} y={b.y0} width={iw} height={Math.max(0,b.y1-b.y0)} fill={b.fill}/>
+            <text x={L+iw-4} y={(b.y0+b.y1)/2+3.5} textAnchor="end"
+                  fontSize="9.5" fill="#A9A6B8">{b.name}</text>
+          </g>
+        ))}
+        {[0, Math.round(cfg.max/2), cfg.max].map(v => (
+          <text key={v} x={L-8} y={y(v)+3.5} textAnchor="end" fontSize="10" fill="#9B98A8">{v}</text>
+        ))}
+        {DATES.map((d,i) => (
+          <line key={i} x1={x(i)} y1={T+ih} x2={x(i)} y2={T+ih+4} stroke="#C9C5D8" strokeWidth="1"/>
+        ))}
+        {[0,4,8,13].map(i => (
+          <text key={i} x={x(i)} y={H-9} textAnchor={i===0?"start":i===13?"end":"middle"}
+                fontSize="10.5" fill="#8B8E9B">{DATES[i]}</text>
+        ))}
+        <path d={path} fill="none" stroke="#3E2E73" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+        {series.map((v,i) => {
+          const flagged = kind === "phq9" && item9For(pid, i) > 0;
+          return (
+            <g key={i}>
+              {flagged && <circle cx={x(i)} cy={y(v)} r="8.5" fill="#9E2B45" opacity="0.16"/>}
+              <circle cx={x(i)} cy={y(v)} r={hover===i?5:3.2} fill={flagged ? "#9E2B45" : "#3E2E73"}
+                      stroke="#fff" strokeWidth={hover===i?2:1.4}/>
+              <circle cx={x(i)} cy={y(v)} r="13" fill="transparent" style={{cursor:"pointer"}}
+                      onMouseEnter={()=>setHover(i)} onMouseLeave={()=>setHover(null)}
+                      onClick={()=>onPick(i)}/>
+            </g>
+          );
+        })}
+        {hover !== null && (
+          <g transform={`translate(${x(hover)},${y(series[hover])-15})`} style={{pointerEvents:"none"}}>
+            <rect x="-52" y="-19" width="104" height="20" rx="4" fill="#15171A"/>
+            <text x="0" y="-5" textAnchor="middle" fontSize="11" fill="#fff">
+              {DATES[hover]} · {series[hover]} · open
+            </text>
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+/* ============================ PIECES ============================ */
+
+function Cite({c, onOpen}){
+  const node = c.node || {t:"doc", id:c.id};
+  return <button className="cite" onClick={()=>onOpen(node)}>{c.label}</button>;
+}
+
+function Drawer({stack, onPush, onBack, onClose}){
+  const doc = resolveDoc(stack[stack.length-1]);
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  if (!doc) return null;
+
+  const prevDoc = stack.length > 1 ? resolveDoc(stack[stack.length-2]) : null;
+
+  return (
+    <React.Fragment>
+      <div className="scrim" onClick={onClose}/>
+      <div className="drawer" role="dialog" aria-label={`${doc.title}, ${doc.date}`}>
+        <div className="dr-head">
+          <div>
+            {prevDoc && (
+              <button className="dr-back" onClick={onBack}>← Back to {prevDoc.title}</button>
+            )}
+            <div className="dr-title">{doc.title}</div>
+            <div className="dr-meta">{doc.date} · {doc.meta}</div>
+          </div>
+          <button className="dr-close" onClick={onClose} aria-label="Close">×</button>
+        </div>
+
+        <div className="dr-body">
+          {doc.kind === "survey" ? (
+            <React.Fragment>
+              {doc.rows.map((r,i) => (
+                <div key={i} className={"srv-row" + (r.hit ? " hit" : "")}>
+                  <div className="srv-k">{r.k}</div>
+                  <div className="srv-v">{r.label} — {RESP[r.v]}</div>
+                  <div className="srv-n">{r.v}</div>
+                </div>
+              ))}
+              <div className="srv-total">
+                <b>{doc.total} of {doc.max}</b> — {band(doc.inst, doc.total)} range
+                <div className="srv-delta">
+                  {doc.prev === null ? "First administration on file."
+                    : doc.total === doc.prev ? `Unchanged from the previous administration (${doc.prev}).`
+                    : `${Math.abs(doc.total-doc.prev)} point${Math.abs(doc.total-doc.prev)===1?"":"s"} ${doc.total>doc.prev?"higher":"lower"} than the previous administration (${doc.prev}, ${band(doc.inst,doc.prev)}).`}
+                </div>
+              </div>
+            </React.Fragment>
+          ) : (
+            doc.turns.map((turn,i) => (
+              <div key={i} className={"turn" + (turn.hit ? " hit" : "")}>
+                <div className="turn-who">{turn.who}</div>
+                <div className="turn-txt">{turn.txt}</div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {doc.related && doc.related.length > 0 && (
+          <div className="dr-rel">
+            <span className="dr-rel-label">Same client:</span>
+            {doc.related.map((r,i) => (
+              <button key={i} className="cite" onClick={()=>onPush(r.node)}>{r.label}</button>
+            ))}
+          </div>
+        )}
+        <div className="dr-foot">Source document · unedited · highlighted rows are the cited passage</div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+function Chat({patient, onOpen}){
+  const [log, setLog] = useState([]);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const endRef = useRef(null);
+
+  useEffect(() => { setLog([]); setDraft(""); }, [patient.id]);
+  useEffect(() => { endRef.current && endRef.current.scrollIntoView({behavior:"smooth"}); }, [log, busy]);
+
+  function ask(q){
+    if (!q.trim() || busy) return;
+    setLog(l => [...l, {who:"you", txt:q}]);
+    setDraft(""); setBusy(true);
+    setTimeout(() => {
+      const a = answerFor(patient.id, q);
+      setLog(l => [...l, {who:"ai", txt:a.txt, cites:a.cites || []}]);
+      setBusy(false);
+    }, 620);
+  }
+
+  return (
+    <div className="right">
+      <div className="chat-head">
+        <div className="chat-title">Ask about {patient.name.split(" ")[0]}</div>
+        <div className="chat-sub">Scoped to this chart only · prototype, canned responses</div>
+      </div>
+      <div className="chat-log">
+        {log.length === 0 && (
+          <div>
+            <div className="chat-intro">
+              Search across this client's transcripts, notes, plans and surveys.
+              Answers come back with the passages they rest on.
+            </div>
+            <div className="sugs">
+              {patient.suggested.map((s,i) => (
+                <button key={i} className="sug" onClick={()=>ask(s)}>{s}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        {log.map((m,i) => m.who === "you" ? (
+          <div key={i} className="msg-you"><div className="msg-you-b">{m.txt}</div></div>
+        ) : (
+          <div key={i} className="msg-ai">
+            <div className="msg-ai-b">{m.txt}</div>
+            {m.cites.length > 0 && (
+              <div className="msg-cites">
+                {m.cites.map((c,j) => (
+                  <button key={j} className="cite-row"
+                          onClick={()=>onOpen(c.node || {t:"doc", id:c.id})}>
+                    <span className="cite-row-date">{c.date}</span>
+                    <span className="cite-row-txt">{c.txt}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+        {busy && <div className="thinking">Searching the chart…</div>}
+        <div ref={endRef}/>
+      </div>
+      <div className="chat-form">
+        <input className="chat-input" value={draft} placeholder="Ask a question"
+               onChange={e=>setDraft(e.target.value)}
+               onKeyDown={e=>{ if(e.key==="Enter") ask(draft); }}/>
+        <button className="chat-send" disabled={!draft.trim()||busy} onClick={()=>ask(draft)}>Ask</button>
+      </div>
+    </div>
+  );
+}
+
+/* ============================ APP ============================ */
+
+function App(){
+  const [pid, setPid] = useState("gary");
+  const [kind, setKind] = useState("phq9");
+  const [stack, setStack] = useState([]);
+  const [riskOpen, setRiskOpen] = useState(true);
+  const p = PATIENTS[pid];
+
+  useEffect(() => { setRiskOpen(true); setKind("phq9"); setStack([]); }, [pid]);
+
+  const open  = node => setStack([node]);
+  const push  = node => setStack(s => [...s, node]);
+  const back  = ()   => setStack(s => s.slice(0,-1));
+  const close = ()   => setStack([]);
+
+  const series = p.scores[kind];
+  const thr = kind === "phq9" ? 5 : 4;
+  const rc = reliableChange(series, thr);
+  const flat = plateauWeeks(series);
+
+  return (
+    <div className="app">
+      <div className="topbar">
+        <div className="brand">
+          <span className="brand-mark"/>
+          <span className="brand-name">Clinical Co-Pilot</span>
+          <span className="brand-sub">pre-session view</span>
+        </div>
+        <div className="switcher">
+          <span className="switcher-label">Client</span>
+          {Object.values(PATIENTS).map(x => (
+            <button key={x.id} className={"tab" + (x.id===pid ? " on" : "")} onClick={()=>setPid(x.id)}>
+              {x.alert && x.id !== pid && <span className="tab-dot"/>}
+              {x.tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="body">
+        <div className="left">
+          <div className="stack">
+
+            {p.risk && riskOpen && (
+              <div className="risk">
+                <div className="risk-head">
+                  <span className="risk-title">{p.risk.title}</span>
+                  <span className="risk-kind">{p.risk.kind}</span>
+                </div>
+                <div className="risk-body">{p.risk.body}</div>
+                <div className="risk-foot">
+                  <button className="risk-btn" onClick={()=>open(p.risk.cite)}>See the responses</button>
+                  <button className="risk-dismiss" onClick={()=>setRiskOpen(false)}>Reviewed — not actionable</button>
+                </div>
+              </div>
+            )}
+
+            <div className="phead">
+              <h1 className="pname">{p.name}</h1>
+              <div className="pmeta">{p.meta} · <b>{p.dx}</b></div>
+              <p className="psummary">{p.summary}</p>
+            </div>
+
+            <div className="card">
+              <div className="card-head">
+                <span className="card-title">Since your last session</span>
+                <span className="card-note">{p.followUps.length} item{p.followUps.length===1?"":"s"}</span>
+              </div>
+              {p.followUps.length === 0 ? (
+                <div className="empty">Nothing outstanding from the last three sessions.</div>
+              ) : p.followUps.map((f,i) => (
+                <div className="fu" key={i}>
+                  <div className="fu-kind">{f.kind}</div>
+                  <div className="fu-main">
+                    <div className="fu-text">{f.text}</div>
+                    {f.quote && <div className="fu-quote">{f.quote}</div>}
+                    {f.cites.length > 0 && (
+                      <div className="fu-cites">
+                        {f.cites.map((c,j) => <Cite key={j} c={c} onOpen={open}/>)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="card">
+              <div className="card-head">
+                <span className="card-title">Survey trajectory</span>
+                <div className="seg" style={{marginLeft:"auto"}}>
+                  <button className={kind==="phq9"?"on":""} onClick={()=>setKind("phq9")}>PHQ-9</button>
+                  <button className={kind==="gad7"?"on":""} onClick={()=>setKind("gad7")}>GAD-7</button>
+                </div>
+              </div>
+              <div className="chart-hint">Click any point to open that administration, item by item.</div>
+              <Chart series={series} kind={kind} pid={pid}
+                     onPick={i => open({t:"srv", pid, inst:kind, i})}/>
+              <div className="chart-foot">
+                <span>
+                  <b>{rc.direction==="flat" ? "No net change" :
+                      `${Math.abs(rc.delta)} points ${rc.direction}`}</b> since March
+                  {rc.reliable ? " — exceeds reliable change" : " — below reliable change threshold"}
+                </span>
+                {flat >= 8 && <span><b>{flat} weeks</b> without reliable change</span>}
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-head">
+                <span className="card-title">Plan adherence</span>
+                <button className="card-note-btn" onClick={()=>open({t:"doc", id:p.planDoc})}>
+                  {p.plan}
+                </button>
+              </div>
+              {p.goals.map((g,i) => (
+                <div className="goal" key={i}>
+                  <div className="goal-main">
+                    <div className="goal-text">{g.text}</div>
+                    {g.cites && g.cites.length > 0 && (
+                      <div className="goal-cites">
+                        {g.cites.map((c,j) => <Cite key={j} c={c} onOpen={open}/>)}
+                      </div>
+                    )}
+                  </div>
+                  <div className={"goal-stat " + g.stat}>{g.note}</div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+
+        <Chat patient={p} onOpen={open}/>
+      </div>
+
+      {stack.length > 0 && (
+        <Drawer stack={stack} onPush={push} onBack={back} onClose={close}/>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
